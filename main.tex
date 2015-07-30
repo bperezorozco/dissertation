@@ -1,0 +1,81 @@
+\documentclass[pdftex,12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subfiles}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\graphicspath{{images/}{../images/}}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=30mm,
+ right=30mm,
+ top=30mm,
+ bottom=35mm,
+ }
+ 
+ \newcommand*{\justifyheading}{\raggedleft}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\justifyheading}{\chaptertitlename\ \thechapter}
+  {20pt}{\Huge}
+\newcommand{\defeq}{\vcentcolon=}
+\newcommand{\eqdef}{=\vcentcolon}
+\newcommand*{\V}[1]{\mathbf{#1}}%
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\justif}[2]{&{#1}&\text{#2}}
+\newcommand{\qedwhite}{\hfill \ensuremath{\Box}}
+\renewcommand{\qed}{\hfill\blacksquare}
+\renewcommand{\baselinestretch}{2}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+ 
+\title{Learning relational structures from birdsong}
+\author{Bernardo Pérez Orozco\\Balliol College\\University of Oxford}
+\date{ September 1st 2015 }
+\begin{document}
+ \input{./title.tex}
+
+\chapter{Introduction}
+\subfile{chapters/ch1.tex}
+ 
+\chapter{Literature review}
+
+\subfile{chapters/ch2.tex}
+
+\chapter{Feature extraction and signal analysis}
+ 
+\subfile{chapters/ch3.tex}
+ 
+\chapter{Similarity measures and relational structures}
+
+\subfile{chapters/ch4.tex}
+
+\chapter{Implementation}
+
+\subfile{chapters/ch5.tex}
+
+\chapter{Empirical results}
+
+\subfile{chapters/ch6.tex}
+
+\chapter{Conclusion}
+
+\subfile{chapters/ch7.tex}
+
+\bibliographystyle{unsrt}
+\bibliography{bib}
+
+%Formant implementation\\
+%http://uk.mathworks.com/help/signal/ug/formant-estimation-with-lpc-coefficients.html\\
+%http://www.phon.ucl.ac.uk/courses/spsci/matlab/lect10.html\\
+%http://dea.brunel.ac.uk/cmsp/home_yan_qin/intro/FmtEstimation.htm\\
+%http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/\\
+\end{document}

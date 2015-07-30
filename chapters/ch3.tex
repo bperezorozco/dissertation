@@ -1,0 +1,32 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+Approx 5500 words.
+\par Introduction of the chapter: what is feature selection. Mention that a way of characterising spectrograms is given by formants. Given an overview of the chapter: signal analysis review, definition of formants, algorithms for estimating formants \textbf{400 words}.
+
+\section{Signal analysis review (2500 words)}
+    \begin{itemize}
+    %H(z) IS THE FILTER http://gyazo.com/2fc7bcc00398bb561444a614c9b22816https://books.google.co.uk/books?id=zoAqBgAAQBAJ&pg=PA365&lpg=PA365&dq=%22inverse+filter%22+lti&source=bl&ots=_Hrmu1eJRm&sig=fc7hY6eyIHiH0c3CePdYS9WI2gU&hl=en&sa=X&ved=0CC0Q6AEwAmoVChMIw8Lciuj-xgIVAroUCh0kbAut#v=onepage&q=%22inverse%20filter%22%20lti&f=false
+    \item Define LTI system and its impulse response function (200 words)
+    \item Define Fourier Transform, FFT, SFTF (300 words)
+    \item Signal preprocessing: windowing, pre-emphasis and mean normalisation (500 words)
+    \item Overview of autoregressive models and the autocorrelation function (500 words)
+    \item LPC coefficients and the spectral envelope (500 words)
+    \item The Yule-Walker Equations and the Levinson-Durbin algorithm (500 words)
+    \end{itemize}
+    
+
+\section{What are formants? (800 words)}
+    Provide a definition for formants, including:
+    \begin{itemize}
+    \item What are formants? 
+    \item Show the trajectory of formants in a birdsong recording
+    \item Human speech can be seen as the output of an LTI system. In particular, input is air pressure coming from the glottis, and the physical properties of the vocal tract yield an impulse response function. Speech is the convolution of these two functions. %https://books.google.co.uk/books?id=mt9bAwAAQBAJ&pg=PA741&lpg=PA741&dq=lti+system+human+speech&source=bl&ots=afrNr7TP_k&sig=kD6S_oMIePOJuvgXK9SUJnTGdgU&hl=en&sa=X&ved=0CC0Q6AEwAmoVChMIov__2sTxxgIVyckUCh3tNQPy#v=onepage&q=lti%20system%20human%20speech&f=false
+    \item The formants are also the peaks of the spectral envelope of a signal. Explain bandwidth of formants and its relationship with their relevance (smaller bandwidth, more relevant).
+    \item Another practical example: plot a spectral envelope from a single point in time in a birdsong recording.
+    \end{itemize}
+
+\section*{An algorithm for formant estimation (1500 words)}
+    This section is all about making a small summary on how to estimate formant trajectory. The best book to do so is Linear Prediction of Speech by Markel and Gray. The goal is to show the reader how to go from a signal to the LPC coefficients, and from here how to estimate formants at a fixed point in time. This is one of the approaches I used. After describing this algorithm, I will emphasise that the LPC coefficients need the calculation of the autocorrelation function, and make a link between this and the Fourier Transform of the signal. This estimate for the autocorrelation function can now be used as input to the Levinson-Durbin algorithm to get the LPC coefficients for the signal.
+    
+
+\end{document}

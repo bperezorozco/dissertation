@@ -1,0 +1,14 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+Approx. 6K words
+What does this chapter contain?
+
+- This should be a literature review. This should firstly give a general overview of approaches people use to build relational structures. This will probably come up to showing that relational structures will usually require a way of representing things (feature extraction) and the definition of a similarity measure, followed by an algorithm that builds a relational structure. A good way of seeing it is backwards: to build a relational structure, we normally require a distance measure, which in turn requires a representation for the objects we are studying. \textbf{provide references for all this reasoning}\\
+- Once a general overview has been provided, literature review on each step has to be done. In particular, we care about:\\
+- A literature review on feature extraction: again, a general overview of techniques, and a more specific review of what we are using. This means that vector quantisation, MFCCs and formants should all be reviewed.\\
+- Talk about dimensionality. It is more useful to have a "general" and "comparable" representation of objects (is is very likely that two different audio recordings will have a different amount of formants, and comparing a subsection of one versus the other might not be ideal. One way of doing this is by learning a more complex, (comparable) structure). There should be a review on KDE and HMM. HMM will probably require an overview of GMMs and Dirichlets, and Variational Inference algorithms\\
+- Finally, a review on similarity measures: a brief review of distance measures between probability measures (how are the different from your average measure). KL Divergence, SKLD, Hellinger for KDE. Extend to HMM. Closed forms for 
+- How do they build the relational structure? Review on hierarchical clustering
+
+
+\end{document}

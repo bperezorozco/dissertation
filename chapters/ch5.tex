@@ -1,0 +1,25 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+4k words 
+
+\section{Overview of the implementation pipeline (700 words)}
+This should include: description of the platform (MATLAB), description of the dataset, remark the difference between birdsong and birdcall (and show that we have only been working with the birdsong files).
+\section{Implementation considerations for formants(800 words)}
+    Present a brief walkthrough on my implementation of formant estimation. This should cover:
+    - Choosing the number of formants: there is one approx. every 1000 Hz, and if we aim for that, we need to calculate as many as fnyquist over 1000. Since the first formant is the most characteristic one, the best way to get around this difficulty is to DOWNSAMPLE the audiofile to twice the maximum formant we expect to see, and then calculate the number of formants we expect to see. (250 words)
+    - Preprocessing: parameters for segmentation and windowing, pre-emphasis and mean normalisation. (150 words)
+    - MATLAB provides routines for: LPC coefficient estimation, FFT, IFFT, Levinson-Durbin, and Spectrogram and Frequency Response Estimation (for plot generation) (150 words).
+    - Filtering the resulting formants: do not consider anything below 50 Hz, choosing a bandwidth, etc.  (150 words)
+    
+\section{Implementation from chapter 4 (1000 words)}
+Describe the whole pipeline: building an intermediate structure (what packages are being used for KDE and HMM), the closed forms for similarity measures when needed, the package used for hierarchical clustering. Here it will be important to describe how each package works, i.e. what algorithms are implemented in:
+
+1. KDE (and mention that it implements an automatic method to choose the bandwidth for unidimensional Gaussians)
+2. HMM (variational implementation from the Oxford MLRG)
+    - Talk about the identifiability problem. Describe a routine to calculate occupancy and to sort states according to occupancy.
+3. Hierarchical clustering (from MATLAB)
+
+\section{Optimisation (800 words)}
+1. Using closed forms for some SKLD (multivariate gaussians and dirichlets)
+2. Using pdist to calculate distances between pairs of elements
+\end{document}

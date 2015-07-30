@@ -1,0 +1,23 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+Approx. 6000 words
+Introduction to the chapter: justify the need for intermediate structures (the content and structure for formants can be better described by these). Two ways to achieve so are HMMs and PDFs. We can then calculate similarity between pairs of objects and use this to build hierarchical structures. (200 words).
+
+\section{ Kernel density estimation  (700 words)}
+Show a brief description of this method: this is useful for fitting a probability distribution over a subset of Rn. Key issues to address: choosing a bandwidth. Show that there is an optimal choice for a unidimensional Gaussian.
+\section{ Hidden Markov Models (2000 words)}
+Briefly describe what an HMM is: it models sequences over time in which the observations of the sequence may have been produced from a set of K probability distributions. When the observations are continuous, it is useful to models them as a GMM, which leads to an explanation of GMM. Emphasise that this requires to choose one parameters: the number of states, and that this can make a huge difference in the performance of the model. This can be solved by using a variational approach. Briefly describe what a Variational HMM is. Mention that a Variational HMM can be trained by the Expectation Propagation algorithm.
+\subsection{ Gaussian Mixture Models } (500 words)
+\subsection{ Dirichlet distributions } (500 words)
+\subsection{ Expectation propagation } (500 words)
+\section{ Similarity measures between probability distributions (800 words)}
+Describe the main motivation behind having measures between pdfs (as opposed to measures used for any pair of functions).
+\subsection{The Symmetric KL Divergence} (300 words)
+\subsection{The Hellinger Distance} (300 words)
+\section{ Building similarity measures between HMMs (800 words) } 
+Note that the GMM in an HMM is different to a normal GMM. Calculating the similarity for between GMMs is just like calculating the distance between any two probability distributions, though no closed form exists. 
+\subsection{Symmetric KL Divergence between two GMMs}
+\subsection{Symmetric KL Divergence between two Dirichlet distributions}
+\section{ Hierarchical clustering (1000 words)} 
+Describe the linkage and dendrogram drawing procedures.
+\end{document}
