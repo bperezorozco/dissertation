@@ -1,5 +1,77 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
+
+
+In this chapter, we are interested in giving a review of the literature on how to build relational structures automatically. While reviewing pieces of work, we are interested in two aspects: one is the pipeline used to build the relational structure itself, which comprises the mathematical models and algorithms applied to this end, along with their assumptions. If these assumptions are met in our model, then their pipeline or a subset of it could be useful.
+\par Additionally, the second aspect of interest are the goals and components of the target relational structure, i.e. the entities and relationships the authors modelled. Discovering links between pairs of bird species is different from segmenting vowel sounds in human speech, for example. Although these differences will probably be reflected in different pipelines, understanding them is key in order to produce a pipeline that will yield better results for our work.
+\par However, limiting ourselves to works focusing exclusively on this task might be too restrictive: results from bird classification, clustering and detection could also prove useful for our project. For example, feature extraction is common to all tasks, and state-of-the-art feature extraction is mandatory in order to achieve better results. Therefore, whenever relevant, works on these tasks will also be cited in this review.
+\par This chapter is presented as follows: firstly, a general overview of pipelines for building relational structures is given; afterwards, we present a review of feature extraction methods used in acoustic signals; algorithms for building relational structures are reviewed next; finally, a discussion on how the referenced methods are relevant a working pipeline for our scenario is presented.
+
+\section{Relational structures and pipelines}
+A relational structure is one that shows links between objects. In this work, we will assume these links to be a binary relations $R$ over a single set $X$, i.e. $R \subseteq X \times X$. One way of representing such relations is a square matrix $A$, called \emph{adjacency matrix}, such that $A \in \mathbb{R}^{n \times n}$, where $n =\left\vert{X}\right\vert$.
+\par In real life, information about objects can be represented as a relational structure. As the number of objects grows large, specific subsets of $R$ may present an increasingly "complex" topology. "Complex graphs" (as they are commonly called in the literature) and how to identify them have been extensively discussed in the field. In \cite{Kim2008}, the authors give a narrowed definition for complex graph, which we adapt as follows:
+\theoremstyle{definition}
+\begin{definition}{Complex graph}. One such that its topological features deviate from random graphs. In other words, a graph that contains many different subgraphs.
+\end{definition}
+\par 
+
+
+Building a relational structure is strongly linked to the procedure of clustering. 
+
+
+Clustering consists in (CITE) we group objects together under a distance measure. A distance measure is (give definition of distance measure).
+\par As a consequence, defining a distance measure requires knowledge about what kind of objects we are grouping, and in Machine Learning in particular, whether there is a transformation of the input data into features, and what these features are.
+
+
+
+\section{Feature extraction procedures for birdsong}
+\section{Building relational structures}
+
+\cite{VoVan2010}
+N(0) ={W(0)
+1 ,W(0) 2 ,...,W(0) n }, with known probability
+density functions {f1(x), f2(x), ... , fn(x)}.We partition these populations into progressively inclu- sive clusters, keeping the cluster width at each step minimum. At each step, we only consider the
+density functions {f1(x), f2(x), ... , fn(x)}.We partition these populations into progressively inclu- sive clusters, keeping the cluster width at each step minimum. At each step, we only consider the
+clusters at the previous step and, from all possible unions, merge the two clusters whose union
+has the minimum width. The other clusters do not change.
+
+\cite{Goh2008}
+Given a set of pdfs, how do
+we develop a computationally simple framework that allows us to group the pdfs into
+similar families? Since these pdfs are determined from data, they are non-parametric in
+nature.
+
+\cite{hastie2008}
+Clustering is the simplest case. K-means. 
+
+\cite{Lu2012}
+    The existing community detection methods such as the
+diagram segmentation method [2], W-H algorithm [3], hierarchical clustering method [4], and also GN algorithm [1,16], can
+only discover non-overlapping community
+structure.
+
+
+\cite{Girvan2002}
+The traditional method for detecting community structure in networks such as that depicted in Fig. 1 is
+hierarchical clustering. One first calculates a weightWij for every
+pair i,j of vertices in the network, which represents in some sense
+how closely connected the vertices are.
+
+
+Edge ‘‘Betweenness’’ and Community Structure.
+Instead of trying to construct a measure that tells us which
+edges are most central to communities, we focus instead on those
+edges that are least central, the edges that are most ‘‘between’’
+communities.
+
+\cite{hastie2008}
+Divisive clustering
+\section{}
+
+
+
+
+
 Approx. 6K words
 What does this chapter contain?
 
