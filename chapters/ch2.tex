@@ -15,7 +15,7 @@ A relational structure is one that shows links between objects. In this work, we
 \end{definition}
 \par A problem that has attracted attention in recent years is community detection. Given a graph $G = (X, E)$ depicting a relation between pairs of objects in $X$, community detection can be seen as a problem of clustering over $X$, i.e. partitioning the vertices $X$ in such a way that the edges between those in different clusters "are comparatively fewer than those between those belonging to the same cluster" \cite{Fortunato2010}. 
 \par Clustering is the task of "grouping or segmenting a collection of objects into subsets or clusters, such that those within each cluster are more closely related to one another than objects assigned to different clusters" \cite{hastie2008}. An example of clustering for the 2-dimensional case can be seen in \ref{clustering}.
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics{clustering}
 \caption{Simulated data in the plane, clustered into three classes. Image taken from \cite{hastie2008}.}
@@ -61,32 +61,82 @@ A non-negative function $d$ satisfying:
 \par We can now tackle the rest of this literature review as stages that we can put together in order to build relational structures. We will first give an overview of general aspects of birdsong in section \ref{birdsong_review}, aiming to present in a structured manner the data to be analysed in this work. After, we will dedicate a section for each of the processes comprised in the general pipeline. Section \ref{features_review} presents different procedures to extract features from birdsong automatically. Later, section \ref{measures_review} gives a definition of measures frequently used in the literature. Finally, section \ref{algorithms_review} gives an overview of algorithms used to generate relational structures from input vectors and measures.
 
 \section{General aspects of birdsong} \label{birdsong_review}
-what is birdsong?
-\cite{Berwick2013}
-"The main function of song seems to be defense of territory and mate attraction "
-"Interestingly, in this species, the call is more complex than the song, and calls are used in a variety of contexts "
-"Inspection of sonograms of tutors and their tutees suggests that young songbirds copy many elements of the songs of their tutors"
-"Behaviorally, human language and birdsong both involve complex, patterned vocalizations"
-"It is thought that human language can be distinguished from animal vocalizations by its syntactic complexity, where hierarchies can be assembled by combining words and words parts, a word-construction process called  “ morphology. ”
-"The principal difference between human language and birdsong is that the latter has neither a lexicon nor semantic complexity"
-"birdsong involves vocal learning, guided by innate templates of varying degrees of strictness"
-"Songs are defined as the vocalizations that birds make in the context of mate attraction and competition; most species also have other types of vocalizations, commonly known as  “ calls. ” "
+In this section, we present the concept of birdsong from a biological perspective. We will address this by giving relevant information on the acoustic structure of birdsong, and how it differs from its counterpart, bird calls. Moreover, we also touch on the social and behavioural functions of birdsong and its relation to human speech. Finally, we discuss some arguments regarding the evolution of bridsong through time.
+\par There are two ways of acoustic communication among birds: songs and calls. The former "resemble speech in that they are acoustically complex sequences of stereotyped vocal gestures, lasting from seconds to minutes" \cite{Snowdon2013}. On the other hand, bird calls are shorter, consonant-like sounds whose "contribution to nature's music is minimal" \cite{Marler2004}. 
+\par From a functional perspective, birdsong is used to defend territories and for mate attraction or competition \cite{Berwick2013} \cite{Naguib2014}, whereas calls are more intimately related to "issues of life and death, such as: predator alarm, the announcement and exchange of food, and the maintenance of social proximity and group composition and integration" \cite{Marler2004}.
+\par Birdsongs and bird calls are also different structurally. Biologists have proposed a hierarchical structure of birdsong: a single song is composed of multiple motifs or patterns, each of which is composed of syllables \cite{Snowdon2013}. This structure can be observed in figure \ref{fig_birdsong_structure}. Bird calls, on the other hand, "are often short, monosyllabic, with simple frequency patterning, often delivered in what often appears to be a disorderly fashion" \cite{Marler2004}. Thus, bird calls often lack the hierarchical structure and repetitive patterns that are so distinctive of birdsong. An example of this can be seen in figure \ref{fig_birdcall}.
 
-\cite{Marler2004}
-"The contribution of bird calls to nature's music is minimal. We all know that songs display avain vocal tract virtuosity at its finest."
-"From a functional point of view, the calls of birds actually range far more widely than songs, approaching in diversity and complexity the calls of primates".
-"songs are usually larger and more complex acoustically, involving a variety of different notes and syllables, ordered in statistically reliable sequences; calls are often short, monosyllabic, with simple frequency patterning, often delivered in what often appears to be a disorderly fashion".
-"functions of call are also predator alarm, the announcement and exchange of food, and the maintenance of social proximity and group composition and integration. Calls are more deeply involved than songs with immediate issues of life and death."
-what is it used for?
-what are the differences between birdsong and birdcall?
-frequency ranges?
-how does birdsong vary across species?
-similarities between birdsong and vowels? (by similarity, birdcalls are more similar to consonants)
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{birdsong_structure}
+\caption{Spectrogram from a birdsong recording of the species \emph{Periparus ater}. The thick blue and green bars represent syllables, and the black boxes represent a motif.}
+\label{fig_birdsong_structure}
+\end{figure}
+
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{birdcall}
+\caption{Spectrogram from a bird call recording of the species \emph{Vanillus vanillus}.}
+\label{fig_birdcall}
+\end{figure}
+
+\par In this work, we will be concerned exclusively with birdsong examples. Now that we have compared both types of bird communication, we will focus only on birdsong. The remaining of this section will present more relevant features of birdsong and its association with human speech and evolution.
+\par Biologists support the idea that birdsong is learnt by imitation of parent birds \cite{Berwick2013}, i.e. young birds copy many elements of elder birds to produce birdsong. Moreover, the patterns that can be produced by birds can take a long time to master, since birdsong depends on many factors, for example \cite{Naguib2014}: 
+\begin{itemize}
+\item Some motifs are longer than others, thus mastering them takes longer.
+\item Some songs are only produced at a particular time of the day or season of the year.
+\item Since one function of birdsong is mating, some songs may only be produced during the birds' fertility period.
+\item The energy requirement varies among different songs.
+\end{itemize}
+\par The fact that birds learn to sing by imitating elder birds is a trait that has caught attention among the field scholars, due to its close relation to how humans learn to speak (by imitation as well). This is not the only similarity between both scenarios: both, birdsong and human language "involve complex, patterned vocalisations" \cite{Berwick2013} \cite{Naguib2014}. The similarity between birdsong and human speech is also related to the auditory system of birds and humans: both hear best between 2 and 5 kHz, unlike other models of animal auditory processing \cite{Snowdon2013}. Furthermore, the bird auditory system can hear frequencies as high as 10kHz, and its human counterpart can do so up to 20kHz \cite{Snowdon2013}.
+\par However, biologists consider human speech to be much more complex lexically and semantically \cite{Berwick2013}, i.e. whereas birdsong has two very clear purposes, human speech serves to many more. These functions are closely tied to the highly structured syntactic structures of natural language. Another way to present this point is: the phonetic complexity of both means of communication is not what makes them most distinguishable (both have syllables that make up words), but the idea that human speech adds further levels of abstraction by proceeding to assemble words into sentences, and sentences into full discourses. The morphological, syntactic and semantic complexities of human speech are virtually absent from birdsong. Nevertheless, a strong link still exists in the phonetic abstraction of language.
+\par At present, we could make yet another analogy between natural language and birdsong: if human languages have evolved and diversified over time due to sociological and environmental phenomena, how could a similar theory be developed for birdsong, assuming this were even possible? \cite{Cate2004} gives an account of this work stating that past researchers were skeptical about this theory, given that closely related species can diverge strongly in vocal features, just as much as how non-related species could converge in their vocal features due to environmental pressure. The former is more common than the latter, and it occurs often due to acoustic changes occurring in a particular generation, and carried over to the future. Additionally, birds that migrate might be pushed to change the way the sing (or call) due to the presence of new threats. In fact, \cite{Marler2004} states that the loss of natural habitats may actually leave us forever with unanswered questions, precisely due to the missing information that would permit us to trace back the evolution of birdsong.
+\par To conclude this section, we point out that more recent research has supported the idea that there is still sufficient information to perform bird species classification \cite{Naguib2014}. Certainly, this is not the same as building a relational structure of bird species, and the arguments above could imply that there is no theoretical guarantee (at least from the biological perspective) that one such relation could exist. However, there is still no guarantee from a statistical or computational perspective that this is indeed the case, and thus Machine Learning becomes relevant to give an opinion on the matter from a mathematical perspective.
+
 \section{Feature extraction procedures for birdsong} \label{features_review}
-There is a very broad literature on how to extract features from birdsong. 
+In this section, we give an account of different birdsong feature extraction techniques used in the literature. Most of these techniques rely on extracting information from the signal in the frequency domain, i.e. if we let a birdsong recording (or a portion of it) be a function of time, namely $x(t)$, then we can take it to the frequency domain and analyse it there. 
+\subsection{The Fourier Transform and the FFT algorithm}
+\par One widespread way of performing this domain shift is given by the Fourier transform \cite{Weisstein2015}, defined as:
+\theoremstyle{definition}
+\begin{definition}{Fourier Transform}.
+Given a function $x(t)$, its Fourier transform $X(s)$ is defined as:
+\begin{align*}
+X(s) = \int_{-\infty}^{\infty}x(t)\mathrm{e}^{-2\pi ist}dx
+\end{align*}
+\end{definition}
+\par We can also define a discrete version of this operation:
+\begin{definition}{Discrete Fourier Transform}.
+Given a discrete function $\{x_n\}$, its Fourier transform $\{X_k\}$ is defined as:
+\begin{align*}
+X_k = \sum_{n=0}^{N-1}x_n\mathrm{e}^{-2\pi i\frac{kn}{N}}
+\end{align*}
+\end{definition}
+\par By far the most efficient way to perform the latter is the Fast Fourier Transform (FFT), which runs in $\mathcal{O}(N\log{N})$ \cite{Smith2011}. There are several versions of this algorithm, but one of the most well-known in the literature is the Cooley-Tukey algorithm, described by the eponymous authors \cite{Cooley1965}, \cite{Weisstein2015}. Its general strategy is to use intermediate results in a divide-and-conquer fashion in order to decrease the total number of operations \cite{Weisstein2015}, and it achieves so thanks to the Danielson-Lanczos Lemma:
+\begin{lemma}
+\emph{Danielson-Lanczos Lemma.} The DFT expansion $\{X_k\}$ of a discrete function $\{x_n\}$ can also be expressed as:\\
+\begin{align*}
+X_k &= \sum_{j=0}^{N/2-1}\mathrm{e}^{-2\pi i\frac{kj}{N/2}}x_{2j} + W^n\sum_{j=0}^{N/2-1}\mathrm{e}^{-2\pi i\frac{kj}{N/2}}x_{2j+1}\\
+&=F^e_k + W^kF^o_k \\
+\text{with } W &= \mathrm{e}^ {\frac{-2\pi i}{N} }
+\end{align*}
+\end{lemma}
+\par This is merely regrouping the addition terms as two subadditions, one along the odd-numbered indices, and one along the even-numbered indices. Moreover, by periodicity of the DFT:
+\begin{align*}
+F^e_k &= F^e_{k+N/2}\\
+F^o_k &= F^o_{k+N/2}\\
+\mathrm{e}^ {\frac{-2\pi ik}{N} } &= -\mathrm{e}^ {\frac{-2\pi i(k+N/2)}{N} }
+\end{align*}
+\par This enables us to reformulate the calculation of $X_k$ as:
+\begin{align*}
+X_k = F^e_k + W^kF^o_k\\
+X_{k+N/2} = F^e_k - W^kF^o_k
+\end{align*}
+\par These reformulations reduce the calculations per recursion to nearly half of the original number, thus resulting in a much better performing procedure. More specific details of this algorithm are beyond the scope of this work, but can be consulted in \cite{Smith2011} and \cite{Cooley1965}.
+\par Having discussed the transformation of signals in the time domain into signals in the frequency domain, we are now prepared to set forth different methods of feature extraction.
+
+\subsection{Mel Frquency Cepstral Coefficients (MFCC)}
+\par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a signal by analysing its Mel-frequency \emph{cepstrum}. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above it. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies.
+\par 
 Discuss different methods of feature extraction:
-- Mel spectrum
-- MFCC
+- Mel spectrum and MFCC
 - Wavelets
 - Wavelet transformation of MFCCs as described in \cite{Chou2009}
 - Syllable segmentation
