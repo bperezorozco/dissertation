@@ -133,10 +133,42 @@ X_{k+N/2} = F^e_k - W^kF^o_k
 \par Having discussed the transformation of signals in the time domain into signals in the frequency domain, we are now prepared to set forth different methods of feature extraction.
 
 \subsection{Mel Frquency Cepstral Coefficients (MFCC)}
-\par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a signal by analysing its Mel-frequency \emph{cepstrum}. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above it. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies.
-\par 
+\par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a frame (a portion of a signal) by analysing its Mel-frequency \emph{cepstrum}. This is done for as many overlapping frames of equal length (around 20-50 milliseconds) that can be extracted from the original signal. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies.
+\par Hertz can be mapped to Mels by the following:
+\begin{align*}
+F_{\text{mel}} = 1127 \log{(1 + \frac{F_{Hz}}{700})}
+\end{align*}
+\theoremstyle{definition}
+\par We now present the general (scale-independent) definition of the cepstrum, adapted from \cite{Gutierrez-Osuna2009}:
+\begin{definition}{Cepstrum} \label{def_cepstrum}
+The cepstrum $\V{c}$ of a discrete time signal $\V{x}$ is defined as the Inverse Discrete Fourier Transform (IDFT) of the log-magnitude of the frequency spectrum of $\V{x}$. In other words:
+\begin{align*}
+\V{c} = \mathcal{F}^{-1}\{\log{(\abs{\mathcal{F}\{\V{x}\}})}\}
+\end{align*}
+\end{definition}
+\par Note that the absolute value $\abs{\mathcal{F}\{\V{x}\}}$ is the square root of the spectral energy of $\V{x}$, which is given by $E(\V{x}) = \abs{\mathcal{F}\{\V{x}\}}^2$. By using the knowledge from the Mel-scale, we can introduce the Mel-frequency cepstrum. The main difference between this and the one from definition \ref{def_cepstrum} is that we compute the magnitude of the spectrum in Mel-scale, rather than in Hertz. Given that the Mel-scale was introduced to model how the human ear detects pitch, this new estimate would show how energy in different \emph{critical bands} of frequencies is being detected by humans. A critical band is a range of frequencies centered around \emph{critical frequencies}, which are distributed according to the Mel-scale, i.e. uniformly before 1 kHz, and exponentially onwards \cite{Gutierrez-Osuna2009}. The length of this range is called the \emph{bandwidth} of the band.
+\par In order to estimate the magnitude of the spectrum in Mel-scale, we compute the magnitude of the original frequency spectrum in Hertz and weight it by means of triangular filters along the frequency axis. Each filter corresponds to one critical band, is centered in a critical frequency and the length of its base corresponds to the bandwidth of the critical band, as pictured in figure \ref{mel_energy}.
+
+
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{mel_energy}
+\caption{Triangular frequencies to compute the spectral energy in the Mel scale. Picture taken from \cite{Sludge2000}.}
+\label{mel_energy}
+\end{figure}
+
+\par Then, we continue with the steps described in definition \ref{def_cepstrum}. The result is called Mel-cepstrum and the MFCC are the first $k$ elements of the result. In practice, normally 13 coefficients are taken after using between 20 and 40 triangular filters \cite{Gutierrez-Osuna2009}. However, more recent research has shown that computers now have enough resources to use the full Mel spectrum, rather than just taking the first coefficients \cite{Stowell2014}. Furthermore, MFCC tend to be enhanced with the so-called \emph{delta features}, which represent the rate of change of the MFCC sequence over time \cite{Muda2010} \cite{Lyons2014}. 
+\begin{definition}{Delta features.} \label{def_delta_mfcc}
+Given a sequence of coefficients $\V{c}$, its delta features are given by:
+\begin{align*}
+\Delta_t = \frac{\V{c}_{t+1} - \V{c}_{t-1}}{2}
+\end{align*}
+\end{definition}
+\par Similarly, \emph{double delta features} (or acceleration) can be computed by taking the delta features of the delta sequence. 
+\par In \cite{Stowell2014}, an analysis of the performance of both, raw Mel spectra and MFCC is presented and compared against other feature extraction procedures when used to characterise birdsong. The conclusion is that, although standard for human speech, there is no proof that this should be the standardised feature extractor for birdsong. The authors present unsupervised feature learning as an alternative that could be more accurate, but call for further benchmarking to be done before coming to an absolute conclusion.
+
+
 Discuss different methods of feature extraction:
-- Mel spectrum and MFCC
+
 - Wavelets
 - Wavelet transformation of MFCCs as described in \cite{Chou2009}
 - Syllable segmentation
