@@ -132,7 +132,7 @@ X_{k+N/2} = F^e_k - W^kF^o_k
 \par These reformulations reduce the calculations per recursion to nearly half of the original number, thus resulting in a much better performing procedure. More specific details of this algorithm are beyond the scope of this work, but can be consulted in \cite{Smith2011} and \cite{Cooley1965}.
 \par Having discussed the transformation of signals in the time domain into signals in the frequency domain, we are now prepared to set forth different methods of feature extraction.
 
-\subsection{Mel Frquency Cepstral Coefficients (MFCC)}
+\subsection{Mel Frequency Cepstral Coefficients (MFCC)} \label{subsection_mfcc}
 \par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a frame (a portion of a signal) by analysing its Mel-frequency \emph{cepstrum}. This is done for as many overlapping frames of equal length (around 20-50 milliseconds) that can be extracted from the original signal. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies.
 \par Hertz can be mapped to Mels by the following:
 \begin{align*}
@@ -166,6 +166,23 @@ Given a sequence of coefficients $\V{c}$, its delta features are given by:
 \par Similarly, \emph{double delta features} (or acceleration) can be computed by taking the delta features of the delta sequence. 
 \par In \cite{Stowell2014}, an analysis of the performance of both, raw Mel spectra and MFCC is presented and compared against other feature extraction procedures when used to characterise birdsong. The conclusion is that, although standard for human speech, there is no proof that this should be the standardised feature extractor for birdsong. The authors present unsupervised feature learning as an alternative that could be more accurate, but call for further benchmarking to be done before coming to an absolute conclusion.
 
+\subsection{Spherical k-means} \label{subsection_spherical}
+This is an unsupervised approach to feature learning that consists in finding a normalised spanning set of $K$ vectors for the training dataset. The algorithm was first proposed by \cite{Coates2012}, first used for audio in \cite{Dieleman2013} and in particular for birdsong in \cite{Stowell2014}. It is a modification of the well-known K-means algorithm, where the main difference consists in assigning each datum to the cluster whose centroid produces the minimum cosine distance.
+\begin{definition}{Cosine distance} \label{def_cosine_distance}
+The cosine distance between two vectors $\V{x}$ and $\V{y}$ separated by an angle $\theta_{\V{x}, \V{y}}$ is given by:
+\begin{align*}
+d(\V{x}, \V{y}) &= 1 - \cos{(\theta_{\V{x}, \V{y}})}\\
+&= 1 - \frac{\V{x} \cdot \V{y}}{\norm{\V{x}}\norm{\V{y}}}
+\end{align*}
+\end{definition}
+\par Moreover, each centroid is normalised at every iteration of the algorithm. The result is a normalised spanning set that displays the directions of greater concentration of data, as depicted in figure \ref{fig_spherical}.
+
+\begin{figure}[t]
+\includegraphics[width=50mm]{spherical}
+\caption{Spherical k-means applied to artificial data generated from 3 different 2D-gaussians. The marks represent each of the normalised centroids. Image taken from \cite{Stowell2014}.}
+\label{fig_spherical}
+\end{figure}
+\par The dot product of each datum $\V{x}_j$ with each of the vectors $\V{b}_i$ in the spanning set can be used as features $\V{x}^*_{i,j}$ for a learning procedure, with dimensionality equal to $K$. That is, let $\V{B}$ be the matrix whose rows are the vectors in the spanning set found by spherical k-means, then the new features are given by $\V{x}^*_j = \V{Bx}_j$. In \cite{Stowell2014}, spherical k-means is used as an unsupervised feature extraction procedure for birdsong recordings: the authors used Mel spectral frames (with 40 entries, as described in \ref{subsection_mfcc}) as input to the algorithm. As proposed in \cite{Dieleman2013}, all frames were normalised in length and preprocessed using PCA-whitening. More details of this procedure can be found in \cite{Stowell2014} and \cite{Dieleman2013}.
 
 Discuss different methods of feature extraction:
 
@@ -176,6 +193,8 @@ Discuss different methods of feature extraction:
 - Principle frequencies as described in \cite{Chou2008}
 - Formant
 - Information geometry (learning a PDF and using this PDF as input vector)
+
+
 
 
 
