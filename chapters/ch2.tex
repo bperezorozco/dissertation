@@ -241,23 +241,43 @@ Independent Component Analysis (ICA) is a feature extraction method that assumes
 \par Depending on the application, researchers might choose to focus on studying the basis vectors from the columns of $\V{A}$ or on analysing the original signals \cite{Kasprzak,Hsieh2009,Chien2006,Jang2001}. Note that, since $m<N$, ICA can also be seen as a dimensionality reduction method: at each time $t$, an entry $\V{x}_t$ has $N$ entries that are mapped into an $m$-dimensional vector $\V{s}_t$ by using ICA. 
 \par Iterative methods are commonly used to find the source signals by updating an unweighting matrix $\V{W}$, where $\V{s} = \V{Wx}$ \cite{Hyvarinen2000}. This is done by checking convergence based on a cost function that measures statistical independence among the current source signals. One such algorithm is FastICA, which has been shown to accelerate convergence \cite{Hyvarinen2000, Kasprzak}. 
 \par Non-Gaussianity is a key aspect in ICA. A classical result from Probability theory is the Central Limit Theorem, which states that, under certain conditions, the sum of two independent random variables is "more" Gaussian than either component. A thorough discussion on this assumption is given in \cite{Hyvarinen2000}, in which the following key remark is made: let $\V{z} = \V{A}^T\V{w}$, and assume a mixture vector $\V{x}$ behaves as desired for ICA (i.e. is actually a mixture of statistically independent components); then, $\V{y}_j = \V{w}_j\V{x} = \V{w}_j\V{As} = \V{z}^T\V{s}$. Then, $\V{y}_t$ is a linear combination of the original sources $\V{s}$. 
-\par Since combining any two $\V{s}_i, \V{s}_j$ would lead to a "more Gaussian" distribution than either of them, the product $\V{z}^T\V{s}$ is the least Gaussian whenever $\V{z}^T\V{s} = V{s}_i$. Therefore, $\V{w}$ can be seen as a vector that maximises the non-Gaussianity of $\V{w}^T\V{x}$. The reader is referred to \cite{Hyvarinen2000} for a broader discussion on this matter.
+\par Since combining any two $\V{s}_i, \V{s}_j$ would lead to a "more Gaussian" distribution than either of them, the product $\V{z}^T\V{s}$ is the least Gaussian whenever $\V{z}^T\V{s} = \V{s}_i$. Therefore, $\V{w}$ can be seen as a vector that maximises the non-Gaussianity of $\V{w}^T\V{x}$. The reader is referred to \cite{Hyvarinen2000} for a broader discussion on this matter.
 \par ICA has been successfully used for feature extraction in the speech recognition domain, still lacking presence in the birdsong domain. Recent works have used ICA in different approaches. In \cite{Kasprzak}, MFCC (refer to \ref{subsection_mfcc}) feature vectors are first are calculated from windowed speech signals, and then used themselves as a time signal as ICA input; the source signals are then used as features. A similar approach is presented in \cite{Hsieh2009}, but using MFCC and delta and double delta features as input to ICA. A third approach is shown in \cite{Lee2000}, speech segments are used directly as input for ICA, and then the source signals are used as features as well.
 \par One more approach, presented in \cite{Jang2001}, includes using the basis columns of the matrix $\V{A}$ as features for a signal $\V{x}$ and then measure their similarity with those from another signal $\V{y}$. Finally, other works focus on deriving adaptations of the ICA algorithm that better suit differently conditioned problems. For example, in some scenarios, assuming that sources are mixed linearly cannot be justified or accepted at all. Works such as \cite{Almeida2003, Omar} have proposed alternatives for these cases.
 
-\subsection{Formants}
-Just describe what formants are and their relationship with LPC models
+\subsection{Linear Predictive Coding and Formant Frequencies} \label{subsection_formants}
+Sufficiently small portions of speech utterances $\V{x}$ can be seen as a Linear Time-invariant (LTI) system in which a flat spectrum is produced by the glottis in a human body and then reshaped by a linear filter, the throat as explained by the source-filter model of human speech \cite{Bello}. Moreover, remark that any LTI system is uniquely characterised by its impulse response function, or equivalently in the frequency domain, by its frequency response\cite{markel1976}. Therefore, ways of extracting features from this function can prove useful to characterise speech utterances. One such way is to take the peaks of this function. This technique is called formant extraction, and can be mapped visually to the thick bars that appear in spectrogram representations of signals.
+\begin{figure}[t]
+\centering
+\includegraphics[width=90mm]{formants}
+\caption{Formant trajectories are the white, semi-horizontal bars distinguishable from the spectrogram representation of an acoustic signal.}
+\label{fig_formants}
+\end{figure}
+\par Now, assume that the signal can be approximated using a Linear Predictive Coding approach of $p$-th order, i.e. $\hat{\V{x}} = \sum_{k=1}^pa_k\V{x}_{t-k}$. Then, the error at each time $\V{e}_t$ between the original signal and a $p$-th order approximation is given by: 
+\begin{align*}
+\V{e} = \V{x} - \hat{\V{x}} = \V{x} - \sum_{k=1}^p{a_k \V{x}_{t-k}}
+\end{align*} 
+\par By taking the z-transform of this expression, we obtain:
+\begin{align*}
+\mathcal{Z}\{\V{e}\} &= \mathcal{Z}\{\V{x} - \sum_{k=1}^p{a_k \V{x}_{t-k}}\}\\
+E(z) &= X(z)(1-\sum_{k=1}^p{a_k z^{-k}})\\
+E(z) &= X(z)A(z)\\
+\implies X(z) &= \frac{E(z)}{A(z)}
+\end{align*}
+\par Remark that $A(z)$ is still specified by the LPC coefficients, and thus $X(z)$, a frequency domain representation of the time signal $\V{x}$, now depends directly on the LPC coefficients \cite{Hosom2006}. The poles of the above function come in complex pairs, and are given by the roots $z_i = r_ie^{\theta_i}$ of $A(z)$. The formants in Hertz and their corresponding 3-dB bandwidth are given by \cite{Snell1993,Mathworks2015}:
+\begin{align*}
+F_i &= \frac{f_s}{2\pi}\theta_i \text{Hz}\\
+B_i &= -\frac{f_s}{\pi}\log{(r_i)} \text{Hz}
+\end{align*}
+\par The bandwidth is a measure to choose how distinguishing each formant is, and represents the width of each formant peak in the frequency domain. Narrower peaks represent more distinguishing formants. 
+\par Other approaches to estimate formants focus on finding different ways of estimating the LPC coefficients. For example, \cite{Darch,Araujo1998} propose calculating the LPC coefficients from a spectral envelope sampled exclusively at critical frequencies in the Mel-scale.
+\par As discussed in section \ref{birdsong_review}, birdsong and human speech have been found to be very similar sounds. Given that there is a broad literature in formant sequences being used as features for human speech, using them for birdsong modelling could prove useful. For example, \cite{Ferragne2010} used formant trajectories to show the phonetic differences of 13 different British accents. In \cite{Holmes1895}, the authors used formants to classify utterances of digits in English and compare the results against other feature extraction techniques (such as cepstral features). Finally, formants were also used for vowel sounds classification in \cite{markel1976}.
 
-\subsection{Information geometry}
-This brief section deals with how to model other feature extraction outputs as probability distributions or other structures that are learnt.
-
-
-
-- Formant
-- Information geometry (learning a PDF and using this PDF as input vector)
-
-
-
+\subsection{Information geometry} \label{subsection_infgeom}
+The framework of Information Geometry aims at applying tools from Differential Geometry to Probability Theory \cite{Wang2009}. It assumes that each object of study belongs to a point in a Riemannian manifold, and then proceeds to define similarity measures between these points.
+\par The main motivation of this framework is to map objects into symbols that can be compared. In the domain of acoustic signals, this means to be able to build statistical models from a signal and then define a similarity measure between these.
+\par The authors of \cite{Cont2011} define a framework for the analysis of acoustic signals using Information Geometry. They discuss, for example, how sequences of features (such as MFCCs) can be used to build an exponential probability distribution and how clustering (in particular, centroid computation) and model comparison can be performed over this distribution, rather than the raw features. They also apply this framework to automatically segment audio files by detecting pattern changes in the input signal.
+\par Even though Information Geometry has been studied mostly for parametric families of probability distributions \cite{Amari2001}, the key concept of having a structure that summarises the information of our objects of study and then define a similarity measure between them can be retaken for other classes of models. Learning non-parametric probability distributions can be done by Kernel Density Estimation \cite{Goodall2008}, which takes a weights a combination of Kernel functions as a probability distribution; other structures, such as Hidden Markov Models \cite{Chou2008,Muda2010,Hsieh2009,Wielgat2012}, have been broadly used in the Machine Learning community to model the distribution and shape of audio sequences over time. Building these objects as an intermediate step could prove useful to construct similarity matrices as detailed in section \ref{general_pipeline}, if the right metric is defined.
 
 
 \section{Measures}\label{measures_review}
