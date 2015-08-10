@@ -222,17 +222,37 @@ c_{j,k} = (W_\psi f)(\frac{k}{2^j}, \frac{1}{2^j})
 \par In the latter, wavelet coefficients are used as features to characterise birdsong. However, the wavelet coefficients are not calculated directly: instead, their routine segments the original song into syllables, and then MFCC are calculated for each. The output vectors are treated as input to a wavelet transformation procedure. The result is called WMFCC (Wavelet MFCC). 
 \par To conclude this subsection, it must be said that many sources have praised wavelets due to their relative strength over Fourier analysis \cite{Gamulkiewicz2003,Weisstein2015a,Chui1992,Vidakovic1991}; however, implementation issues have also been raised regarding its relative difficult of parametrisation and lack of ability to encode visual energy effectively \cite{Garrett-Glaser2010}.
 
-\subsection{MUSIC algorithm}
+\subsection{MUSIC algorithm} \label{subsection_music}
+The MUltiple SIgnal Classification algorithm is is a useful method to estimate a pseudospectrum of frequencies of a signal $\V{x}$ (of length $N$), so called because it depicts the peaks of the original spectrum, without giving much detail to the rest of the frequency domain. We assume that the signal can be decomposed as a linear combination of $p$ tones or signal components in the presence of Gaussian noise, i.e. $\V{x} = \V{As} + \V{v}$, where $\V{A}$ is a sample of the signal's frequencies, $\V{s}$ is a vector amplitudes, and $\V{v}$ is the vector of Gaussian noise in each component \cite{Evans}.
+\par Let $\V{R_x}$ be the covariance matrix of $\V{x}$, given by $\V{R_x} = \mathbb{E}\{\V{xx}^T\}$ \cite{Evans}. Since $\V{R_x}$ is a Hermitian matrix, its eigenvectors for an orthogonal set. Moreover, when sorted by decreasing magnitude, they also represent the directions of greatest variance in the data (signal). If we assume that the first $p$ span a \emph{signal} subspace, and that the remaining $N-p$ span a \emph{noise} subspace, then both subspaces are orthogonal \cite{Systems1989}. 
+\par Now let the first $p$ eigenvectors of $\V{R}_x$ depend on $\omega$, namely
+\begin{align*}
+\V{e}_{\omega} = \begin{pmatrix}1&e^{i\omega}&e^{i2\omega}&...&e^{i(N-1)\omega}\end{pmatrix}, j \leq p
+\end{align*}
+and let the remaining $N-p$ be $\V{v}_j, p < j$. Then, there exists a value $\omega_{k}$ such that $\V{e}_{\omega_k}\bot\V{v}_j$. 
+\par Furthermore, let the spectral estimate \cite{Kootsookos1999, Mathworks2015} be given by:
+\begin{align*}
+P_\text{MUSIC} = \frac{1}{\sum_{k=p+1}^{N}\abs{\V{v}_k^H\V{e}_{\omega}}^2}
+\end{align*}
+\par The peaks of this spectral estimate are given precisely when $\V{v}_k^H\V{e}_{\omega} = 0$, i.e. when $\omega = \omega_k$. By inspecting different values of $\omega$, it is possible to find such vectors and therefore store $\omega$ as the peaks of the pseudospectrum \cite{Delft2011}. The main disadvantages of this method are the computational resources required to perform this exhaustive search and the need for a number of signal components to be known in advance; however, the frequencies found by it have a better resolution than those found by a FFT, which would have a resolution depending on the coarse-graining of its frequency bins \cite{Kootsookos1999}. These peaks can then be used a features for a learning procedure.
+
+\subsection{Independent component analysis} \label{subsection_ica}
+Independent Component Analysis (ICA) is a feature extraction method that assumes that a (uni- or multivariate) signal over time $\V{x}$ of length $N$ is a linear combination of weighted, statistically independent \emph{source signals} $\V{s}$ (assuming at most one of them is Gaussian), each of length $m$, in the presence of Gaussian noise $V{n}$, i.e. $\V{x} = \V{As} + \V{n}$ \cite{Kasprzak}.
+\par Depending on the application, researchers might choose to focus on studying the basis vectors from the columns of $\V{A}$ or on analysing the original signals \cite{Kasprzak,Hsieh2009,Chien2006,Jang2001}. Note that, since $m<N$, ICA can also be seen as a dimensionality reduction method: at each time $t$, an entry $\V{x}_t$ has $N$ entries that are mapped into an $m$-dimensional vector $\V{s}_t$ by using ICA. 
+\par Iterative methods are commonly used to find the source signals by updating an unweighting matrix $\V{W}$, where $\V{s} = \V{Wx}$ \cite{Hyvarinen2000}. This is done by checking convergence based on a cost function that measures statistical independence among the current source signals. One such algorithm is FastICA, which has been shown to accelerate convergence \cite{Hyvarinen2000, Kasprzak}. 
+\par Non-Gaussianity is a key aspect in ICA. A classical result from Probability theory is the Central Limit Theorem, which states that, under certain conditions, the sum of two independent random variables is "more" Gaussian than either component. A thorough discussion on this assumption is given in \cite{Hyvarinen2000}, in which the following key remark is made: let $\V{z} = \V{A}^T\V{w}$, and assume a mixture vector $\V{x}$ behaves as desired for ICA (i.e. is actually a mixture of statistically independent components); then, $\V{y}_j = \V{w}_j\V{x} = \V{w}_j\V{As} = \V{z}^T\V{s}$. Then, $\V{y}_t$ is a linear combination of the original sources $\V{s}$. 
+\par Since combining any two $\V{s}_i, \V{s}_j$ would lead to a "more Gaussian" distribution than either of them, the product $\V{z}^T\V{s}$ is the least Gaussian whenever $\V{z}^T\V{s} = V{s}_i$. Therefore, $\V{w}$ can be seen as a vector that maximises the non-Gaussianity of $\V{w}^T\V{x}$. The reader is referred to \cite{Hyvarinen2000} for a broader discussion on this matter.
+\par ICA has been successfully used for feature extraction in the speech recognition domain, still lacking presence in the birdsong domain. Recent works have used ICA in different approaches. In \cite{Kasprzak}, MFCC (refer to \ref{subsection_mfcc}) feature vectors are first are calculated from windowed speech signals, and then used themselves as a time signal as ICA input; the source signals are then used as features. A similar approach is presented in \cite{Hsieh2009}, but using MFCC and delta and double delta features as input to ICA. A third approach is shown in \cite{Lee2000}, speech segments are used directly as input for ICA, and then the source signals are used as features as well.
+\par One more approach, presented in \cite{Jang2001}, includes using the basis columns of the matrix $\V{A}$ as features for a signal $\V{x}$ and then measure their similarity with those from another signal $\V{y}$. Finally, other works focus on deriving adaptations of the ICA algorithm that better suit differently conditioned problems. For example, in some scenarios, assuming that sources are mixed linearly cannot be justified or accepted at all. Works such as \cite{Almeida2003, Omar} have proposed alternatives for these cases.
 
 \subsection{Formants}
 Just describe what formants are and their relationship with LPC models
+
 \subsection{Information geometry}
 This brief section deals with how to model other feature extraction outputs as probability distributions or other structures that are learnt.
 
 
 
-- MUSIC algorithm
-- Principle frequencies as described in \cite{Chou2008}
 - Formant
 - Information geometry (learning a PDF and using this PDF as input vector)
 
