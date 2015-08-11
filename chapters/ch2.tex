@@ -21,19 +21,20 @@ A relational structure is one that shows links between objects. In this work, we
 \caption{Simulated data in the plane, clustered into three classes. Image taken from \cite{hastie2008}.}
 \label{clustering}
 \end{figure}
-\par Therefore, performing clustering requires computing the \emph{closeness} of elements in the set of objects $X$. Proximity, closeness, similarity or dissimilarity, all refer to \emph{distance functions} or \emph{measures}. 
+\par Therefore, performing clustering requires computing the \emph{closeness} of elements in the set of objects $X$. Proximity, closeness, similarity or dissimilarity, all refer to \emph{distance functions} or \emph{metrics}. 
 \theoremstyle{definition}
-\begin{definition}{Measure}.
+\begin{definition}{Metric}.
+\label{def_metric}
 A non-negative function $d$ satisfying:
 \begin{enumerate}
 \item Triangle inequality. $d(x, z) \leq d(x, y) + d(y, z) $
 \item Symmetry. $d(x, y) = d(y, x)$
 \item $d(x, x) = 0$
-\item $d(x, y) = 0 \implies x = y$
+\item $d(x, y) = 0 \iff x = y$
 \end{enumerate}
 \end{definition}
-\par Thus, defining a measure requires knowledge about what kind of objects we are grouping. In Machine Learning in particular, we will also be concerned by how we transform data into objects for which we can define a measure. This process, called \emph{feature extraction}, consists in "deriving features from raw data that can be used as input for a learning procedure" \cite{hastie2008}. The goal is to use domain knowledge to extract features that will reduce redundancy in raw data and highlight distinguishing characteristics, thus optimising the learning procedure in both, correctness and performance \cite{Bishop2006}. 
-\par By working our way backwards, we have implicitly defined a general pipeline to be followed to build relational structures: the algorithms that do so, require the definition of a measure between objects. These objects will be the vectors or features extracted from each object of interest. A diagram depicting this procedure is shown in \ref{pipeline}.
+\par Thus, defining a metric requires knowledge about what kind of objects we are grouping. In Machine Learning in particular, we will also be concerned by how we transform data into objects for which we can define a metric. This process, called \emph{feature extraction}, consists in "deriving features from raw data that can be used as input for a learning procedure" \cite{hastie2008}. The goal is to use domain knowledge to extract features that will reduce redundancy in raw data and highlight distinguishing characteristics, thus optimising the learning procedure in both, correctness and performance \cite{Bishop2006}. 
+\par By working our way backwards, we have implicitly defined a general pipeline to be followed to build relational structures: the algorithms that do so, require the definition of a metric between objects. These objects will be the vectors or features extracted from each object of interest. A diagram depicting this procedure is shown in \ref{pipeline}.
 \begin{figure}
 \centering
 \begin{tikzpicture}[node distance=2cm]
@@ -58,7 +59,7 @@ A non-negative function $d$ satisfying:
 \caption{A general pipeline to build relational structures.}
 \label{pipeline}
 \end{figure}
-\par We can now tackle the rest of this literature review as stages that we can put together in order to build relational structures. We will first give an overview of general aspects of birdsong in section \ref{birdsong_review}, aiming to present in a structured manner the data to be analysed in this work. After, we will dedicate a section for each of the processes comprised in the general pipeline. Section \ref{features_review} presents different procedures to extract features from birdsong automatically. Later, section \ref{measures_review} gives a definition of measures frequently used in the literature. Finally, section \ref{algorithms_review} gives an overview of algorithms used to generate relational structures from input vectors and measures.
+\par We can now tackle the rest of this literature review as stages that we can put together in order to build relational structures. We will first give an overview of general aspects of birdsong in section \ref{birdsong_review}, aiming to present in a structured manner the data to be analysed in this work. After, we will dedicate a section for each of the processes comprised in the general pipeline. Section \ref{features_review} presents different procedures to extract features from birdsong automatically. Later, section \ref{metrics_review} gives a definition of metrics frequently used in the literature. Finally, section \ref{algorithms_review} gives an overview of algorithms used to generate relational structures from input vectors and metrics.
 
 \section{General aspects of birdsong} \label{birdsong_review}
 In this section, we present the concept of birdsong from a biological perspective. We will address this by giving relevant information on the acoustic structure of birdsong, and how it differs from its counterpart, bird calls. Moreover, we also touch on the social and behavioural functions of birdsong and its relation to human speech. Finally, we discuss some arguments regarding the evolution of bridsong through time.
@@ -239,11 +240,11 @@ P_\text{MUSIC} = \frac{1}{\sum_{k=p+1}^{N}\abs{\V{v}_k^H\V{e}_{\omega}}^2}
 \subsection{Independent component analysis} \label{subsection_ica}
 Independent Component Analysis (ICA) is a feature extraction method that assumes that a (uni- or multivariate) signal over time $\V{x}$ of length $N$ is a linear combination of weighted, statistically independent \emph{source signals} $\V{s}$ (assuming at most one of them is Gaussian), each of length $m$, in the presence of Gaussian noise $V{n}$, i.e. $\V{x} = \V{As} + \V{n}$ \cite{Kasprzak}.
 \par Depending on the application, researchers might choose to focus on studying the basis vectors from the columns of $\V{A}$ or on analysing the original signals \cite{Kasprzak,Hsieh2009,Chien2006,Jang2001}. Note that, since $m<N$, ICA can also be seen as a dimensionality reduction method: at each time $t$, an entry $\V{x}_t$ has $N$ entries that are mapped into an $m$-dimensional vector $\V{s}_t$ by using ICA. 
-\par Iterative methods are commonly used to find the source signals by updating an unweighting matrix $\V{W}$, where $\V{s} = \V{Wx}$ \cite{Hyvarinen2000}. This is done by checking convergence based on a cost function that measures statistical independence among the current source signals. One such algorithm is FastICA, which has been shown to accelerate convergence \cite{Hyvarinen2000, Kasprzak}. 
+\par Iterative methods are commonly used to find the source signals by updating an unweighting matrix $\V{W}$, where $\V{s} = \V{Wx}$ \cite{Hyvarinen2000}. This is done by checking convergence based on a cost function that metrics statistical independence among the current source signals. One such algorithm is FastICA, which has been shown to accelerate convergence \cite{Hyvarinen2000, Kasprzak}. 
 \par Non-Gaussianity is a key aspect in ICA. A classical result from Probability theory is the Central Limit Theorem, which states that, under certain conditions, the sum of two independent random variables is "more" Gaussian than either component. A thorough discussion on this assumption is given in \cite{Hyvarinen2000}, in which the following key remark is made: let $\V{z} = \V{A}^T\V{w}$, and assume a mixture vector $\V{x}$ behaves as desired for ICA (i.e. is actually a mixture of statistically independent components); then, $\V{y}_j = \V{w}_j\V{x} = \V{w}_j\V{As} = \V{z}^T\V{s}$. Then, $\V{y}_t$ is a linear combination of the original sources $\V{s}$. 
 \par Since combining any two $\V{s}_i, \V{s}_j$ would lead to a "more Gaussian" distribution than either of them, the product $\V{z}^T\V{s}$ is the least Gaussian whenever $\V{z}^T\V{s} = \V{s}_i$. Therefore, $\V{w}$ can be seen as a vector that maximises the non-Gaussianity of $\V{w}^T\V{x}$. The reader is referred to \cite{Hyvarinen2000} for a broader discussion on this matter.
 \par ICA has been successfully used for feature extraction in the speech recognition domain, still lacking presence in the birdsong domain. Recent works have used ICA in different approaches. In \cite{Kasprzak}, MFCC (refer to \ref{subsection_mfcc}) feature vectors are first are calculated from windowed speech signals, and then used themselves as a time signal as ICA input; the source signals are then used as features. A similar approach is presented in \cite{Hsieh2009}, but using MFCC and delta and double delta features as input to ICA. A third approach is shown in \cite{Lee2000}, speech segments are used directly as input for ICA, and then the source signals are used as features as well.
-\par One more approach, presented in \cite{Jang2001}, includes using the basis columns of the matrix $\V{A}$ as features for a signal $\V{x}$ and then measure their similarity with those from another signal $\V{y}$. Finally, other works focus on deriving adaptations of the ICA algorithm that better suit differently conditioned problems. For example, in some scenarios, assuming that sources are mixed linearly cannot be justified or accepted at all. Works such as \cite{Almeida2003, Omar} have proposed alternatives for these cases.
+\par One more approach, presented in \cite{Jang2001}, includes using the basis columns of the matrix $\V{A}$ as features for a signal $\V{x}$ and then metric their similarity with those from another signal $\V{y}$. Finally, other works focus on deriving adaptations of the ICA algorithm that better suit differently conditioned problems. For example, in some scenarios, assuming that sources are mixed linearly cannot be justified or accepted at all. Works such as \cite{Almeida2003, Omar} have proposed alternatives for these cases.
 
 \subsection{Linear Predictive Coding and Formant Frequencies} \label{subsection_formants}
 Sufficiently small portions of speech utterances $\V{x}$ can be seen as a Linear Time-invariant (LTI) system in which a flat spectrum is produced by the glottis in a human body and then reshaped by a linear filter, the throat as explained by the source-filter model of human speech \cite{Bello}. Moreover, remark that any LTI system is uniquely characterised by its impulse response function, or equivalently in the frequency domain, by its frequency response\cite{markel1976}. Therefore, ways of extracting features from this function can prove useful to characterise speech utterances. One such way is to take the peaks of this function. This technique is called formant extraction, and can be mapped visually to the thick bars that appear in spectrogram representations of signals.
@@ -269,18 +270,119 @@ E(z) &= X(z)A(z)\\
 F_i &= \frac{f_s}{2\pi}\theta_i \text{Hz}\\
 B_i &= -\frac{f_s}{\pi}\log{(r_i)} \text{Hz}
 \end{align*}
-\par The bandwidth is a measure to choose how distinguishing each formant is, and represents the width of each formant peak in the frequency domain. Narrower peaks represent more distinguishing formants. 
+\par The bandwidth is a metric to choose how distinguishing each formant is, and represents the width of each formant peak in the frequency domain. Narrower peaks represent more distinguishing formants. 
 \par Other approaches to estimate formants focus on finding different ways of estimating the LPC coefficients. For example, \cite{Darch,Araujo1998} propose calculating the LPC coefficients from a spectral envelope sampled exclusively at critical frequencies in the Mel-scale.
 \par As discussed in section \ref{birdsong_review}, birdsong and human speech have been found to be very similar sounds. Given that there is a broad literature in formant sequences being used as features for human speech, using them for birdsong modelling could prove useful. For example, \cite{Ferragne2010} used formant trajectories to show the phonetic differences of 13 different British accents. In \cite{Holmes1895}, the authors used formants to classify utterances of digits in English and compare the results against other feature extraction techniques (such as cepstral features). Finally, formants were also used for vowel sounds classification in \cite{markel1976}.
 
 \subsection{Information geometry} \label{subsection_infgeom}
-The framework of Information Geometry aims at applying tools from Differential Geometry to Probability Theory \cite{Wang2009}. It assumes that each object of study belongs to a point in a Riemannian manifold, and then proceeds to define similarity measures between these points.
-\par The main motivation of this framework is to map objects into symbols that can be compared. In the domain of acoustic signals, this means to be able to build statistical models from a signal and then define a similarity measure between these.
+The framework of Information Geometry aims at applying tools from Differential Geometry to Probability Theory \cite{Wang2009}. It assumes that each object of study belongs to a point in a Riemannian manifold, and then proceeds to define similarity metrics between these points.
+\par The main motivation of this framework is to map objects into symbols that can be compared. In the domain of acoustic signals, this means to be able to build statistical models from a signal and then define a similarity metric between these.
 \par The authors of \cite{Cont2011} define a framework for the analysis of acoustic signals using Information Geometry. They discuss, for example, how sequences of features (such as MFCCs) can be used to build an exponential probability distribution and how clustering (in particular, centroid computation) and model comparison can be performed over this distribution, rather than the raw features. They also apply this framework to automatically segment audio files by detecting pattern changes in the input signal.
-\par Even though Information Geometry has been studied mostly for parametric families of probability distributions \cite{Amari2001}, the key concept of having a structure that summarises the information of our objects of study and then define a similarity measure between them can be retaken for other classes of models. Learning non-parametric probability distributions can be done by Kernel Density Estimation \cite{Goodall2008}, which takes a weights a combination of Kernel functions as a probability distribution; other structures, such as Hidden Markov Models \cite{Chou2008,Muda2010,Hsieh2009,Wielgat2012}, have been broadly used in the Machine Learning community to model the distribution and shape of audio sequences over time. Building these objects as an intermediate step could prove useful to construct similarity matrices as detailed in section \ref{general_pipeline}, if the right metric is defined.
+\par Even though Information Geometry has been studied mostly for parametric families of probability distributions \cite{Amari2001}, the key concept of having a structure that summarises the information of our objects of study and then define a similarity metric between them can be retaken for other classes of models. Learning non-parametric probability distributions can be done by Kernel Density Estimation \cite{Goodall2008}, which takes a weights a combination of Kernel functions as a probability distribution; other structures, such as Hidden Markov Models \cite{Chou2008,Muda2010,Hsieh2009,Wielgat2012}, have been broadly used in the Machine Learning community to model the distribution and shape of audio sequences over time. Building these objects as an intermediate step could prove useful to construct similarity matrices as detailed in section \ref{general_pipeline}, if the right metric is defined.
 
+\section{Metrics}\label{metrics_review}
+In this section, we list and discuss some similarity measures that have proven to be useful in the literature. In particular, we focus on three groups of metrics: those between points in a vector space, those between probability densities, and those between other statistical models, such as Gaussian Mixture Models and Hidden Markov Models. The main goal is to introduce a discussion about the different contexts in which similarity measures can be used, remarking the differences between them.
 
-\section{Measures}\label{measures_review}
+\subsection{Distance between points in vector spaces}\label{subsection_eucdist}
+These metrics arise from considering two points $\V{x, y}$ as members of the same normed vector space $V$ of dimension $n$, i.e. $\V{x,y} \in V$. In the domain of Machine Learning, we can find the distance between two feature vectors by using any of the following:
+\begin{definition}{Manhattan Distance.} \label{def_manhattan}
+Also called City-Block distance, this metric is defined as:
+\begin{align*}
+d_{\text{Manhattan}}(\V{x}, \V{y}) = \sum_{i=1}^n\abs{x_i-y_i}
+\end{align*}
+\end{definition}
+\par This distance can be interpreted as sum of all axis-wise distances between the vectors.
+\begin{definition}{Euclidean distance.} \label{def_euclidean}
+This is the most widespread definition of distance, given by:
+\begin{align*}
+d_{\text{Euclidean}}(\V{x}, \V{y}) &= \sqrt{\sum_{i=1}^n(x_i-y_i)2}\\
+&= \sqrt{\V{x}^T\V{y}}
+\end{align*}
+\end{definition}
+\par Both definitions above can be generalised into the Minkowski distance, given by:
+\begin{definition}{Minkowski distance.} \label{def_minkowski}
+\begin{align*}
+d_{p}(\V{x}, \V{y}) = (\sum_{i=1}^n(x_i-y_i)^{p})^{1/p}, p\in\mathbb{N}
+\end{align*}
+\end{definition}
+\par Where the Manhattan and Euclidean distances correspond to the cases $p=1$ and $p=2$, respectively.
+\par From a Linear Algebra perspective, the three definitions above can also be seen as the p-norm of the vector $\V{x}-\V{y}$, where the p-norm is given by:
+\begin{definition}{$p$-norm.} \label{def_pnorm}
+\begin{align*}
+\norm{\V{x}}_p = (\sum_{i=1}^px_i^p)^{1/p}
+\end{align*}
+\end{definition}
+\par Now assume that are interested in computing the pairwise distance of a set $H$ of a vector space $V$, with $H \subset V$, and that we find the smallest hyper-ellipsoid $E$ that encloses $H$. Then, it is possible that $H$ is non-spherical. This can be understood in two senses: one is that the diameter of at least one axis $x_i$ is different to the rest; the second one is that the resulting hyper-ellipsoid might be slanted with respect to at least one axis $x_i$, i.e. that  $E$ is not symmetrical with respect to all axes. See figure \ref{fig_ellipse} for a depiction of this scenario.
+\begin{figure}[t]
+\centering
+\includegraphics[width=50mm]{ellipse}
+\caption{Artificial data with two correlated variables with different standard deviations.}
+\label{fig_ellipse}
+\end{figure}
+\par The situations above describe data that has correlated variables occupying ranges of different length. In this case, computing pairwise distances using any of the methods described above could be uninformative, due to distances from larger axes diminishing the contribution of the smaller ones. As a consequence, a means of computing distance that would consider these variances in data was proposed by Mahalanobis in 1936 \cite{Bellet2013}.
+
+\begin{definition}{Mahalanobis distance.} \label{def_mahalanobis}
+Let $S$ be the covariance matrix of the set $H$ subset of a vector space $V$. Then, the Mahalanobis distance between two points $\V{x,y}\in H$ is given by:
+\begin{align*}
+d_{M}(\V{x}, \V{y}) = \sqrt{(\V{x}-\V{y})^TS^{-1}(\V{x}-\V{y})}
+\end{align*}
+\end{definition}
+
+\par In this case, the matrix $S^{-1}$ can be seen as a linear transformation that "decorrelates" the data and then calculates the Euclidean distance as in definition \ref{def_euclidean}. 
+
+\subsection{Distance between two probability distributions}\label{subsection_pdfdist}
+In this subsection, we present distance metrics for probability distributions. We remark that the main goal of these methods is to quantify the similarity of two statistical objects, rather than two elements of a vector space. As a consequence, there is a change of focus in how we compute these distances: rather than manipulating the definition of the norm of a vector, we use statistical and information-theoretic foundations to define a similarity metric. 
+\begin{definition}{Symmetric Kullback-Leibler Divergence.} \label{def_skld1}
+Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the Symmetric KL-Divergence between $P$ and $Q$ is given by:
+\begin{align*}
+d_{\text{SKLD}}\infdiv{P}{Q} = \frac{d_{KL}\infdiv{P}{Q} + d_{KL}\infdiv{Q}{P}}{2}
+\end{align*}
+\end{definition}
+\par where $d_{KL}\infdiv{P}{Q}$ is the KL-Divergence of $Q$ from $P$, which is defined as:
+\begin{definition}{Kullback-Leibler Divergence.} \label{def_kld1}
+Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the KL-Divergence of $Q$ from $P$ is given by:
+\begin{align*}
+d_{KL}\infdiv{P}{Q} = \int_{-\infty}^{\infty}P(x)\log{(\frac{P(x)}{Q(x)})}dx
+\end{align*}
+\end{definition}
+\par The above is only defined for distributions satisfying $Q(x) = 0 \implies P(x) = 0$. It can now be seen that the SKLD is just a procedure to add the symmetry property to the KL-Divergence. It can also be seen that the KL-Divergence already satisfies the rest of the properties from definition \ref{def_metric}, and that they are inherited by the SKLD \cite{Hershey2007}. 
+\par Intuitively, the KL-Divergence can be understood as a relative entropy measure \cite{Divergence2008}, i.e. how much information can we lose if we let $Q$ approximate $P$? By taking the average, we are also measuring the converse (letting $P$ approximate $Q$) and then re-scaling the result.
+\begin{definition}{Hellinger distance.} \label{def_hellinger1}
+The Hellinger distance between two discrete probability distributions $P, Q$ is given by:
+\begin{align*}
+h(P, Q) = \frac{1}{\sqrt{2}}\norm{P-Q}_2\\
+&= \sqrt{\sum_{i}(\sqrt{P_i}-\sqrt{Q_i})^2}
+\end{align*}
+\end{definition}
+
+\begin{definition}{Bhattacharyya coefficient.} \label{def_bhattacharyyacoef}
+The Bhattacharyya coefficient between two discrete distributions $P, Q$ is given by:
+\begin{align*}
+\rho(P, Q) = \sum_i{\sqrt{P_iQ_i}}
+\end{align*}
+\par This can be interpreted geometrically as the cosine of the angle $\theta$ between the vectors \begin{align*}
+P' = \begin{pmatrix}\sqrt{P_1}&\sqrt{P_2}&...&\sqrt{P_N}\end{pmatrix}\\
+Q' = \begin{pmatrix}\sqrt{Q_1}&\sqrt{Q_2}&...&\sqrt{Q_N}\end{pmatrix}
+\end{align*}
+\end{definition}
+\par Whenever both distributions are equal, $\rho(P, P) = 1 \implies \theta = 0$, whereas completely disjoint distributions $P, R$ yield $\rho(P, R) = 0 \implies \theta = 1$. The Bhattacharyya coefficient serves to define the Bhattacharyya distance:
+\begin{definition}{Bhattacharyya distance.} \label{def_bhattacharyya}
+\begin{align*}
+d_B(P, Q) = \sqrt{1 - \rho(P, Q)}
+\end{align*}
+\end{definition}
+
+\par The last metric we present works for unidimensional distributions, and is defined below.
+\begin{definition}{Kolmogorov-Smirnov two-sample distance.} \label{def_ks2s}
+\begin{align*}
+D_{KS}(P, Q) = \sup_{x}\abs{P(x)-Q(x)}
+\end{align*}
+\end{definition}
+\par This distance can be interpreted as the maximum distance both distributions have at any point \cite{KSMathworks2015}.
+
+\subsection{Distance between other statistical models}\label{subsection_models}
+Discussion on how to take distance between GMM, HMM
+
 \section{Building relational structures}\label{algorithms_review}
 
 \cite{VoVan2010}
@@ -315,7 +417,7 @@ how closely connected the vertices are.
 
 
 Edge ‘‘Betweenness’’ and Community Structure.
-Instead of trying to construct a measure that tells us which
+Instead of trying to construct a metric that tells us which
 edges are most central to communities, we focus instead on those
 edges that are least central, the edges that are most ‘‘between’’
 communities.
@@ -331,11 +433,11 @@ Divisive clustering
 Approx. 6K words
 What does this chapter contain?
 
-- This should be a literature review. This should firstly give a general overview of approaches people use to build relational structures. This will probably come up to showing that relational structures will usually require a way of representing things (feature extraction) and the definition of a similarity measure, followed by an algorithm that builds a relational structure. A good way of seeing it is backwards: to build a relational structure, we normally require a distance measure, which in turn requires a representation for the objects we are studying. \textbf{provide references for all this reasoning}\\
+- This should be a literature review. This should firstly give a general overview of approaches people use to build relational structures. This will probably come up to showing that relational structures will usually require a way of representing things (feature extraction) and the definition of a similarity metric, followed by an algorithm that builds a relational structure. A good way of seeing it is backwards: to build a relational structure, we normally require a distance metric, which in turn requires a representation for the objects we are studying. \textbf{provide references for all this reasoning}\\
 - Once a general overview has been provided, literature review on each step has to be done. In particular, we care about:\\
 - A literature review on feature extraction: again, a general overview of techniques, and a more specific review of what we are using. This means that vector quantisation, MFCCs and formants should all be reviewed.\\
 - Talk about dimensionality. It is more useful to have a "general" and "comparable" representation of objects (is is very likely that two different audio recordings will have a different amount of formants, and comparing a subsection of one versus the other might not be ideal. One way of doing this is by learning a more complex, (comparable) structure). There should be a review on KDE and HMM. HMM will probably require an overview of GMMs and Dirichlets, and Variational Inference algorithms\\
-- Finally, a review on similarity measures: a brief review of distance measures between probability measures (how are the different from your average measure). KL Divergence, SKLD, Hellinger for KDE. Extend to HMM. Closed forms for 
+- Finally, a review on similarity metrics: a brief review of distance metrics between probability metrics (how are the different from your average metric). KL Divergence, SKLD, Hellinger for KDE. Extend to HMM. Closed forms for specific families
 - How do they build the relational structure? Review on hierarchical clustering
 
 

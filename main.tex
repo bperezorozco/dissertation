@@ -48,6 +48,10 @@
 \newcommand{\justif}[2]{&{#1}&\text{#2}}
 \newcommand{\qedwhite}{\hfill \ensuremath{\Box}}
 \newcommand{\me}{\mathrm{e}}
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\infdiv}{\infdivx}
 \renewcommand{\qed}{\hfill\blacksquare}
 \renewcommand{\baselinestretch}{1.3}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
