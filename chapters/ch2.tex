@@ -1,7 +1,6 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-
 In this chapter, we are interested in giving a review of the literature on how to build relational structures automatically. While reviewing pieces of work, we are interested in two aspects: one is the pipeline used to build the relational structure itself, which comprises the mathematical models and algorithms applied to this end, along with their assumptions. If these assumptions are met in our model, then their pipeline or a subset of it could be useful.
 \par Additionally, the second aspect of interest are the goals and components of the target relational structure, i.e. the entities and relationships the authors modelled. Discovering links between pairs of bird species is different from segmenting vowel sounds in human speech, for example. Although these differences will probably be reflected in different pipelines, understanding them is key in order to produce a pipeline that will yield better results for our work.
 \par However, limiting ourselves to works focusing exclusively on this task might be too restrictive: results from bird classification, clustering and detection could also prove useful for our project. For example, feature extraction is common to all tasks, and state-of-the-art feature extraction is mandatory in order to achieve better results. Therefore, whenever relevant, works on these tasks will also be cited in this review.
@@ -62,7 +61,7 @@ A non-negative function $d$ satisfying:
 \par We can now tackle the rest of this literature review as stages that we can put together in order to build relational structures. We will first give an overview of general aspects of birdsong in section \ref{birdsong_review}, aiming to present in a structured manner the data to be analysed in this work. After, we will dedicate a section for each of the processes comprised in the general pipeline. Section \ref{features_review} presents different procedures to extract features from birdsong automatically. Later, section \ref{metrics_review} gives a definition of metrics frequently used in the literature. Finally, section \ref{algorithms_review} gives an overview of algorithms used to generate relational structures from input vectors and metrics.
 
 \section{General aspects of birdsong} \label{birdsong_review}
-In this section, we present the concept of birdsong from a biological perspective. We will address this by giving relevant information on the acoustic structure of birdsong, and how it differs from its counterpart, bird calls. Moreover, we also touch on the social and behavioural functions of birdsong and its relation to human speech. Finally, we discuss some arguments regarding the evolution of bridsong through time.
+In this section, we present the concept of birdsong from a biological perspective. We will address this by giving relevant information on the acoustic structure of birdsong, and how it differs from its counterpart, bird calls. Moreover, we also touch on the social and behavioural functions of birdsong and its relation to human speech. Finally, we discuss some arguments regarding the evolution of birdsong through time.
 \par There are two ways of acoustic communication among birds: songs and calls. The former "resemble speech in that they are acoustically complex sequences of stereotyped vocal gestures, lasting from seconds to minutes" \cite{Snowdon2013}. On the other hand, bird calls are shorter, consonant-like sounds whose "contribution to nature's music is minimal" \cite{Marler2004}. 
 \par From a functional perspective, birdsong is used to defend territories and for mate attraction or competition \cite{Berwick2013} \cite{Naguib2014}, whereas calls are more intimately related to "issues of life and death, such as: predator alarm, the announcement and exchange of food, and the maintenance of social proximity and group composition and integration" \cite{Marler2004}.
 \par Birdsongs and bird calls are also different structurally. Biologists have proposed a hierarchical structure of birdsong: a single song is composed of multiple motifs or patterns, each of which is composed of syllables \cite{Snowdon2013}. This structure can be observed in figure \ref{fig_birdsong_structure}. Bird calls, on the other hand, "are often short, monosyllabic, with simple frequency patterning, often delivered in what often appears to be a disorderly fashion" \cite{Marler2004}. Thus, bird calls often lack the hierarchical structure and repetitive patterns that are so distinctive of birdsong. An example of this can be seen in figure \ref{fig_birdcall}.
@@ -283,7 +282,7 @@ The framework of Information Geometry aims at applying tools from Differential G
 \section{Metrics}\label{metrics_review}
 In this section, we list and discuss some similarity measures that have proven to be useful in the literature. In particular, we focus on three groups of metrics: those between points in a vector space, those between probability densities, and those between other statistical models, such as Gaussian Mixture Models and Hidden Markov Models. The main goal is to introduce a discussion about the different contexts in which similarity measures can be used, remarking the differences between them.
 
-\subsection{Distance between points in vector spaces}\label{subsection_eucdist}
+\subsection{Distance between two vectors}\label{subsection_eucdist}
 These metrics arise from considering two points $\V{x, y}$ as members of the same normed vector space $V$ of dimension $n$, i.e. $\V{x,y} \in V$. In the domain of Machine Learning, we can find the distance between two feature vectors by using any of the following:
 \begin{definition}{Manhattan Distance.} \label{def_manhattan}
 Also called City-Block distance, this metric is defined as:
@@ -295,8 +294,8 @@ d_{\text{Manhattan}}(\V{x}, \V{y}) = \sum_{i=1}^n\abs{x_i-y_i}
 \begin{definition}{Euclidean distance.} \label{def_euclidean}
 This is the most widespread definition of distance, given by:
 \begin{align*}
-d_{\text{Euclidean}}(\V{x}, \V{y}) &= \sqrt{\sum_{i=1}^n(x_i-y_i)2}\\
-&= \sqrt{\V{x}^T\V{y}}
+d_{\text{Euclidean}}(\V{x}, \V{y}) &= \sqrt{\sum_{i=1}^n(x_i-y_i)^2}\\
+&= \sqrt{\norm{\V{x}-\V{y}}}
 \end{align*}
 \end{definition}
 \par Both definitions above can be generalised into the Minkowski distance, given by:
@@ -350,7 +349,7 @@ d_{KL}\infdiv{P}{Q} = \int_{-\infty}^{\infty}P(x)\log{(\frac{P(x)}{Q(x)})}dx
 \begin{definition}{Hellinger distance.} \label{def_hellinger1}
 The Hellinger distance between two discrete probability distributions $P, Q$ is given by:
 \begin{align*}
-h(P, Q) = \frac{1}{\sqrt{2}}\norm{P-Q}_2\\
+h(P, Q) &= \frac{1}{\sqrt{2}}\norm{P-Q}_2\\
 &= \sqrt{\sum_{i}(\sqrt{P_i}-\sqrt{Q_i})^2}
 \end{align*}
 \end{definition}
@@ -378,67 +377,143 @@ d_B(P, Q) = \sqrt{1 - \rho(P, Q)}
 D_{KS}(P, Q) = \sup_{x}\abs{P(x)-Q(x)}
 \end{align*}
 \end{definition}
-\par This distance can be interpreted as the maximum distance both distributions have at any point \cite{KSMathworks2015}.
+\par This distance can be interpreted as the maximum vertical distance both distributions at any point $x$, and is widely used as a statistical test to prove whether two empirical distributions differ \cite{KSMathworks2015}.
 
 \subsection{Distance between other statistical models}\label{subsection_models}
-Discussion on how to take distance between GMM, HMM
+In this subsection we consider the problem of measuring similarity between other statistical models. For the sake of illustrating the scenario, we will be focusing on a single family of models: Hidden Markov Models (HMMs). Although there is a wide variety of statistical models, focusing on one can be illustrative enough to show the arising challenges. A broader discussion on HMMs and their applications is given in chapter \ref{chapter_hmms}.
+\par The main point to raise in this review is that defining a measure for a statistical model requires knowing and establishing conditions on what similarity \emph{means} in the context of the model. For example, are two HMMs comparable only if they have the same number of states? How should distance metrics make use of the parameters of the model? How does the metric deal with inherent issues of the model, such as identifiability? There exists no clear, established answer to any of these.
+\par Nevertheless, some work has been done to define similarity measures for HMMs with available frameworks. For example, the authors of \cite{Lyngs1999} define a distance metric based on co-emission probability, i.e. based on the probability that two HMMs $h_1, h_2$ independently generate the same sequence of observations $s$. The co-emission probability is given by:
+\begin{align*}
+A(h_1, h_2) = \sum_{s\in \Sigma^*}P_{h_1}(s)P_{h_2}(s)
+\end{align*}
+\par Then, a similarity measure between $h_1, h_2$ is given by:
+\begin{align*}
+S_1(h_1, h_2) = \frac{A(h_1, h_2)}{\sqrt{A(h_1, h_1)A(h_2, h_2)}}
+\end{align*}
+\par Additionally, in \cite{Bahlmann2001}, the authors use the Bayes Probability Error to define a metric between two models. 
+\begin{definition}{Bayes Probability Error.} \label{def_bpe}
+The Bayes Probability Error between two densities $p_1(\V{x}), p_2(\V{x})$ is given by:
+\begin{align*}
+P_e(p_1(\V{x}), p_2(\V{x})) = \int_\V{x}\min{\{\pi_1p_1(\V{x}), \pi_2p_2(\V{x})\}}d\V{x}
+\end{align*}
+\end{definition}
+\par The Bayes Probability Error can be understood as "the area of overlap of two densities $p_1, p_2$ with priors $\pi_1, \pi_2$ under the restriction $\pi_1+\pi_2 = 1$". The authors train handwriting recognition HMMs and then define their misclassification error in terms of their similarity metric, which is defined as:
+\begin{align*}
+D(h_1, h_2) = 1 - 2P_e{(\mathcal{N}(h_1, \V{x}), \mathcal{N}(h_2, \V{x}))}
+\end{align*}
+\par Where $P_e{(\mathcal{N}(h_1, \V{x}), \mathcal{N}(h_2, \V{x}))}$ represents the Bayes Probability Error over the Gaussian emission probabilities in the HMMs. Although this definition only considers Gaussian emission probabilities, it can be adapted to other variants of HMMs by using the corresponding emission densities to compute $P_e$ accordingly.
+\par A third distance measure was proposed in \cite{Juang1985}. Let $h_1, h_2$ be two discrete HMMs with empirical emission distributions given by $\V{B}_1, \V{B}_2$. Then, an HMM distance metric is given by:
+\begin{align*}
+d(h_1, h_2) = \norm{\V{B}_1 - \V{B}_2}
+\end{align*}
+\par This metric has the disadvantage of not taking into account any of the other parameters in the HMMs. Furthermore, it is only defined for discrete-observation HMMs.
+\par To conclude, we review that HMM similarity is still an open problem, and that, in general, statistical model similarity poses several challenges that are inherent to the model itself, hence reducing the possibilities of finding a cross-model metric. In the case of HMMs, different approaches have used their parameters in different fashions to define metrics, some opting to not use all the parameters in their definition. A broader discussion on this is presented in chapter \ref{chapter_hmms}.
 
 \section{Building relational structures}\label{algorithms_review}
+In this section, we present an overview of algorithms to build relational structures from distance matrices (unless a different input is stated). The goal is to give an outline of the different general approaches that have been presented in the literature, and what they were aiming at. We first introduce traditional approaches to clustering; then, we present more novel approaches to the same problem; finally, we introduce algorithms useful to detect communities in complex graphs.
 
-\cite{VoVan2010}
-N(0) ={W(0)
-1 ,W(0) 2 ,...,W(0) n }, with known probability
-density functions {f1(x), f2(x), ... , fn(x)}.We partition these populations into progressively inclu- sive clusters, keeping the cluster width at each step minimum. At each step, we only consider the
-density functions {f1(x), f2(x), ... , fn(x)}.We partition these populations into progressively inclu- sive clusters, keeping the cluster width at each step minimum. At each step, we only consider the
-clusters at the previous step and, from all possible unions, merge the two clusters whose union
-has the minimum width. The other clusters do not change.
+\subsection{K-means algorithm} \label{subsection_kmeans}
+The first algorithm that we cover is K-means. This is an iterative descent algorithm that partitions a purely quantitative set $X$ of $M$ feature vectors into $K$ clusters \cite{hastie2008}. The procedure is divided in two stages: we first choose centroids $\{C_i\}$ (at random for initialisation, and then by finding the mean vector of every cluster) and then create new clusters by assigning each data point to the cluster with the closest centroid $C_i$ (in terms of the Euclidean distance). This is repeated until the clusters stop changing. Pseudocode for this procedure is given in algorithm \ref{alg_kmeans}.
+\begin{algorithm}
+\begin{algorithmic}[1]
+\label{alg_kmeans}
+\Function{kmeans}{$X, K$}
+\State choose $K$ points at random from $X$
+\Repeat
+\ForAll{$x_i$}
+    \ForAll{$c_j$}
+        \State $d(i,j) = \norm{x_i - c_j}$
+    \EndFor  
+    \State $j' = \argmin_j{d(i, :)}$\Comment{choose centroid with minimum distance}
+    \State $C(j')$.add($x_i$)
+\EndFor
+\ForAll{$C(j')$}
+    \State set $c_j \gets \frac{1}{\abs{C(j')}}\sum_{x_i \in C(j')}{x_i}$\Comment{recompute centroids}
+\EndFor  
+\Until{convergence}
+\EndFunction
+\caption{The K-means algorithm}
+\end{algorithmic}
+\end{algorithm}
+\par Despite its simplicity, K-means has some disadvantages, such as being sensitive to the order of presentation of data, e.g. if two centroids are equally apart from a single data point $x_i$, then it will be assigned to the cluster that is presented last. Moreover, K-means only gives a snapshot of the data at a specific point in time - it doesn't describe how the links are formed over time. 
 
-\cite{Goh2008}
-Given a set of pdfs, how do
-we develop a computationally simple framework that allows us to group the pdfs into
-similar families? Since these pdfs are determined from data, they are non-parametric in
-nature.
+\subsection{Agglomerative hierarchical clustering} \label{subsection_hier}
+This is one of the "traditional methods for detecting community structure" \cite{Girvan2002}, whose output is an arborescent structure created by progressively linking clusters. We begin assuming that each point in the dataset is a singleton cluster, and in each iteration we create a new cluster by merging the two closest clusters \cite{hastie2008}. We remark that the input to this algorithm is a similarity matrix (rather than feature vectors, as in K-means) and that, every time we merge a cluster, we only have to update the distances between the newly created cluster and the rest. 
+\par The simplest linking technique is \emph{single linkage}, which takes the inter-cluster distance to be the one between the most similar pair, i.e. for clusters $C_1, C_2$, their single linkage distance is given by:
+\begin{align*}
+d_{SL} = \min_{x_i\in C_1, x_i'\in C_2}{d_{i,i'}}
+\end{align*}
+\par The procedure stops when there is only one cluster containing all data. The output of hierarchical clustering is a list of triples $(C_i, C_i', d_{i,i'})$ that can be seen as records of clusters that were merged together, and how afar they were from each other. This list of tuples can then be visualised as a dendrogram \cite{HAGMathworks}, which is the tree-like structure depicted in figure \ref{fig_hag}. It is important to notice that agglomerative approaches possess a \emph{monotonicity} property: "the dissimilarity between merged clusters is monotone increasing with the level of the merger". If this were not the case, a dendrogram representation of the data would not be possible \cite{hastie2008} - as it is the case for some divisive approaches, discussed in subsection \ref{subsection_divisive}. A broader discussion of this technique and other linking strategies can be found in chapter \ref{chapter_hmms}.
+\par As opposed to K-means, hierarchical clustering shows an evolution of clusters over time, so it can be used to model both, how communities cluster together as times flows, but also take a closer look at how a community looked at a specific moment in time.
+\begin{figure}[t]
+\centering
+\includegraphics[width=80mm]{dendrogram}
+\caption{A dendrogram with 11 leaves. The horizontal axis is the distance between the merged clusters; the vertical axis is the identifier of the leaves.}
+\label{fig_hag}
+\end{figure}
 
-\cite{hastie2008}
-Clustering is the simplest case. K-means. 
-
-\cite{Lu2012}
-    The existing community detection methods such as the
-diagram segmentation method [2], W-H algorithm [3], hierarchical clustering method [4], and also GN algorithm [1,16], can
-only discover non-overlapping community
-structure.
-
-
-\cite{Girvan2002}
 The traditional method for detecting community structure in networks such as that depicted in Fig. 1 is
 hierarchical clustering. One first calculates a weightWij for every
 pair i,j of vertices in the network, which represents in some sense
 how closely connected the vertices are.
 
+\subsection{Divisive hierarchical clustering} \label{subsection_divisive}
+This approach can be seen as the counterpart of agglomerative clustering: rather than starting with $\abs{X}$ clusters, the algorithm considers the whole set $X$ as a single cluster and then splits it iteratively. Some results have shown that this paradigm can produce more accurate results in a shorter amount of time than agglomerative clustering, although there has not been as much research about it \cite{Manning2009}.  
+\par In the simplest case, K-means is applied iteratively to the dataset, i.e. we partition the input cluster into 2 subclusters using $K=2$, and then repeat this procedure for each cluster. However, this approach lacks the monotonicity property described in subsection \ref{subsection_hier}, and hence a consistent dendrogram representation is not guaranteed \cite{hastie2008}.
+\par Further approaches to divisive clustering include the one proposed by Macnaughton Smith in 1965 \cite{hastie2008}, which proceeds as follows: at each iteration, choose the element from input cluster $G$ whose average distance from the rest $G' = G - \{x_i\}$ is largest. The average dissimilarity of $x_i$ with respect to $G'$ is given by:
+\begin{align*}
+\bar{d}_{G'}(x_i) = \frac{1}{\abs{G'}}\sum_{i'\in G'} d_{i,i'}
+\end{align*}
+\par This is the seed of a new cluster, $H$. For each successive step, add to $H$ the element $x_i$ such that:
+\begin{align*}
+\argmax_{x_i \in X} \bar{d}_H(x_i) - \bar{d}_{G-\{x_i\}}
+\end{align*}
+\par This continues until the expression above becomes negative, in which case the algorithm is now applied recursively to $G$ and $H$. This means that there is no other element in $G$ that is closer to $H$ in average \cite{hastie2008}. A broader discussion of divisive hierarchical clustering splitting techniques can be found in \cite{.2006};
 
-Edge ‘‘Betweenness’’ and Community Structure.
-Instead of trying to construct a metric that tells us which
-edges are most central to communities, we focus instead on those
-edges that are least central, the edges that are most ‘‘between’’
-communities.
+\subsection{Girvan-Newman algorithm} \label{subsection_gn}
+This algorithm was first proposed in \cite{Girvan2002}, and focuses on analysing the edges of the network (rather than the vertices). In particular the algorithm chooses edges that lie "between" clusters-to-be, and removes them. This metric is called \emph{edge betweenness}, and is defined as "the number of shortest paths between pairs of vertices that run along it" \cite{Girvan2002}. Edges $e\in E$ with greater betweenness are likely to connect communities, and thus removing them encourages the partitioning of vertices \cite{Lu2012}.
+\begin{algorithm}
+\begin{algorithmic}[1]
+\label{alg_gn}
+\Function{gncommunity}{$X, K$}
+\Repeat
+\ForAll{edges $e \in E$}
+    \State Calculate betweenness $b(e)$
+\EndFor
+\State remove $\argmax_e{b(e)}$
+\Until{no edges have been affected by the last removal}
+\EndFunction
+\caption{The GN algorithm for community detection.}
+\end{algorithmic}
+\end{algorithm}
+\par The main disadvantage of this approach is that it does not handle weighted graphs, thus distance matrices cannot be used to find inner communities.
 
-\cite{hastie2008}
-Divisive clustering
-\section{}
+\subsection{Soft-partitioning} \label{subsection_softpart}
+All the approaches presented until now assume that a single data point can only belong to one cluster or community. However, it is often the case that communities overlap, i.e. that there are at least two clusters $C_i, C_j$ such that $C_i \cap C_j \neq \emptyset$. An approach to solve this problem is proposed in \cite{Psorakis2010}, and relies on matrix factorisation techniques.
+\par Let $\V{V}$ be a matrix of interactions where $v_{i,j}$ denotes the number of interactions between objects $x_i, x_j$. Then, we can model $\hat{\V{V}}$ as the product of two rank $K$ matrices $\V{W} \in \mathbb{R}_+^{N \times K}, \V{H}\in \mathbb{R}_+^{K \times N}$, i.e. $\hat{\V{V}} = \V{WH}$, where $K$ is the number of hidden communities in the network. The product $w_i^Th_j$ can be seen as the \emph{expected number of participations} two individuales $x_i, x_j$ are expected to have - their mutual participation \cite{Psorakis2010}. However, the number of communities $K$ is usually unknown. The authors address this issue by placing automatic relevance determination priors $\V{B} = \text{diag}(\beta_k)$ on the latent variables $w_{ik}, h_{k, j}$ using a Gamma distribution with parameters $a, b$\cite{Psorakis2010a}.
+\par The parameters of this model can be found iteratively via algorithm \ref{alg_nmf} from \cite{Psorakis2010a}:
+\begin{algorithm}
+\begin{algorithmic}[1]
+\label{alg_nmf}
+\Function{nmf}{$V, K_0, a, b$}
+\Repeat
+    \State $\V{H} \gets \frac{\V{H}}{\V{W}^T\V{1}+\V{BH}}\V{W}^T\V{\frac{\V{V}}{\V{WH}}}$
+    \State $\V{W} \gets \frac{\V{W}}{\V{1}\V{H}^T+\V{WB}}\V{\frac{\V{V}}{\V{WH}}}\V{H}^T$
+    \State $\beta_k \gets \frac{N-a-1}{1/2(\sum_i{w_{ik}^2} + \sum_j{h_{kj}^2})} + b$
+\Until{$n_iter$}
+$K_f \gets $ number of non-zero columns of $\V{W}$ or rows of $\V{H}$
+\State \textbf{return} $\V{W}_f \in \mathbb{R}_+^{N\times K_f}, \V{H}_f\in\mathbb{R}_+^{K_f\times N}$
+\EndFunction
+\caption{The GN algorithm for community detection.}
+\end{algorithmic}
+\end{algorithm}
+\par Details on the derivation of these update rules can be found in \cite{Psorakis2010a,Psorakis2010a}. 
+\par The main advantage of this method is that it accounts for overlapping communities and finds an approach that works well over weighted graphs (an aspect lacking from the approach in subsection \ref{subsection_gn}. Work to incorporate other factors in community detection, such as time and geographical dynamics is under way \cite{Psorakis2010}.
 
-
-
-
-
-Approx. 6K words
-What does this chapter contain?
-
-- This should be a literature review. This should firstly give a general overview of approaches people use to build relational structures. This will probably come up to showing that relational structures will usually require a way of representing things (feature extraction) and the definition of a similarity metric, followed by an algorithm that builds a relational structure. A good way of seeing it is backwards: to build a relational structure, we normally require a distance metric, which in turn requires a representation for the objects we are studying. \textbf{provide references for all this reasoning}\\
-- Once a general overview has been provided, literature review on each step has to be done. In particular, we care about:\\
-- A literature review on feature extraction: again, a general overview of techniques, and a more specific review of what we are using. This means that vector quantisation, MFCCs and formants should all be reviewed.\\
-- Talk about dimensionality. It is more useful to have a "general" and "comparable" representation of objects (is is very likely that two different audio recordings will have a different amount of formants, and comparing a subsection of one versus the other might not be ideal. One way of doing this is by learning a more complex, (comparable) structure). There should be a review on KDE and HMM. HMM will probably require an overview of GMMs and Dirichlets, and Variational Inference algorithms\\
-- Finally, a review on similarity metrics: a brief review of distance metrics between probability metrics (how are the different from your average metric). KL Divergence, SKLD, Hellinger for KDE. Extend to HMM. Closed forms for specific families
-- How do they build the relational structure? Review on hierarchical clustering
-
-
+\section{Conclusion}
+In this chapter we introduced a general pipeline to build relational structures, with three main processes: feature extraction, distance matrix computation, and cluster generation. Then, we described general aspects of birdsong that could be useful to choose appropriate techniques for later stages of the process. For each of the subsequent sections, we presented several techniques to "fill in the gaps" of the general pipeline described in section \ref{general_pipeline}.
+\par From section \ref{features_review}, we learned that one technique that is useful to model vocal sounds are formant. Although not much research of formants applied to birdsong has been done, this project could set some preliminary results to test whether they would be a faithful representation of birdsong data. Formants and a signal analysis review to fully understand them are covered in chapter \ref{chapter_formants}.
+\par Additionally, in section \ref{features_review}, we also learned that using an intermediate statistical model, such as a probability distribution or a Hidden Markov Model, can serve to summarise the content and structure of data. In \ref{chapter_hmms}, we further discuss the details on how to build this kind of models and expand the review of similarity metrics from \ref{metrics_review}.
+\par Then, hierarchical clustering is retaken in chapter \ref{chapter_hmms} as well. This approach can be useful to model dynamics in communities and clusters, especially in bird species, discovering structures under specific lifetimes is relevant. 
+\par To conclude, we have seen that although there is a limited amount of research on birdsong community detection, it can be quite approachable by filling the gaps of a generic pipeline - this means that this review also serves to set a basis for work to be done beyond this dissertation.
 \end{document}
