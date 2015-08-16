@@ -1,4 +1,4 @@
-\documentclass[../main.tex]{subfiles}
+\documentclass[../main.tex]{subfiles} \label{chapter_soa}
 \begin{document}
 
 In this chapter, we are interested in giving a review of the literature on how to build relational structures automatically. While reviewing pieces of work, we are interested in two aspects: one is the pipeline used to build the relational structure itself, which comprises the mathematical models and algorithms applied to this end, along with their assumptions. If these assumptions are met in our model, then their pipeline or a subset of it could be useful.
@@ -104,14 +104,14 @@ X(s) = \int_{-\infty}^{\infty}x(t)\mathrm{e}^{-2\pi ist}dx
 \end{definition}
 \par We can also define a discrete version of this operation:
 \begin{definition}{Discrete Fourier Transform}.
-Given a discrete function $\{x_n\}$, its Fourier transform $\{X_k\}$ is defined as:
+Given a discrete function $\V{x} = (x_1,x_2,...,x_n)$, its Fourier transform $\V{X} = (X_1, X_2,...,X_k)$ is defined as:
 \begin{align*}
 X_k = \sum_{n=0}^{N-1}x_n\mathrm{e}^{-2\pi i\frac{kn}{N}}
 \end{align*}
 \end{definition}
 \par By far the most efficient way to perform the latter is the Fast Fourier Transform (FFT), which runs in $\mathcal{O}(N\log{N})$ \cite{Smith2011}. There are several versions of this algorithm, but one of the most well-known in the literature is the Cooley-Tukey algorithm, described by the eponymous authors \cite{Cooley1965}, \cite{Weisstein2015}. Its general strategy is to use intermediate results in a divide-and-conquer fashion in order to decrease the total number of operations \cite{Weisstein2015}, and it achieves so thanks to the Danielson-Lanczos Lemma:
 \begin{lemma}
-\emph{Danielson-Lanczos Lemma.} The DFT expansion $\{X_k\}$ of a discrete function $\{x_n\}$ can also be expressed as:\\
+\emph{Danielson-Lanczos Lemma.} The DFT expansion $\V{X} = (X_1, X_2,...,X_k)$ of a discrete function $\V{x} = (x_1,x_2,...,x_n)$ can also be expressed as:\\
 \begin{align*}
 X_k &= \sum_{j=0}^{N/2-1}\mathrm{e}^{-2\pi i\frac{kj}{N/2}}x_{2j} + W^n\sum_{j=0}^{N/2-1}\mathrm{e}^{-2\pi i\frac{kj}{N/2}}x_{2j+1}\\
 &=F^e_k + W^kF^o_k \\
@@ -416,7 +416,6 @@ In this section, we present an overview of algorithms to build relational struct
 The first algorithm that we cover is K-means. This is an iterative descent algorithm that partitions a purely quantitative set $X$ of $M$ feature vectors into $K$ clusters \cite{hastie2008}. The procedure is divided in two stages: we first choose centroids $\{C_i\}$ (at random for initialisation, and then by finding the mean vector of every cluster) and then create new clusters by assigning each data point to the cluster with the closest centroid $C_i$ (in terms of the Euclidean distance). This is repeated until the clusters stop changing. Pseudocode for this procedure is given in algorithm \ref{alg_kmeans}.
 \begin{algorithm}
 \begin{algorithmic}[1]
-\label{alg_kmeans}
 \Function{kmeans}{$X, K$}
 \State choose $K$ points at random from $X$
 \Repeat
@@ -432,7 +431,7 @@ The first algorithm that we cover is K-means. This is an iterative descent algor
 \EndFor  
 \Until{convergence}
 \EndFunction
-\caption{The K-means algorithm}
+\caption{The K-means algorithm}\label{alg_kmeans}
 \end{algorithmic}
 \end{algorithm}
 \par Despite its simplicity, K-means has some disadvantages, such as being sensitive to the order of presentation of data, e.g. if two centroids are equally apart from a single data point $x_i$, then it will be assigned to the cluster that is presented last. Moreover, K-means only gives a snapshot of the data at a specific point in time - it doesn't describe how the links are formed over time. 
@@ -466,7 +465,7 @@ This approach can be seen as the counterpart of agglomerative clustering: rather
 \end{align*}
 \par This is the seed of a new cluster, $H$. For each successive step, add to $H$ the element $x_i$ such that:
 \begin{align*}
-\argmax_{x_i \in X} \bar{d}_H(x_i) - \bar{d}_{G-\{x_i\}}
+\argmax_{x_i \in X} \bar{d}_H(x_i) - \bar{d}_{G-\{x_i\}}(x_i)
 \end{align*}
 \par This continues until the expression above becomes negative, in which case the algorithm is now applied recursively to $G$ and $H$. This means that there is no other element in $G$ that is closer to $H$ in average \cite{hastie2008}. A broader discussion of divisive hierarchical clustering splitting techniques can be found in \cite{.2006};
 
@@ -474,7 +473,6 @@ This approach can be seen as the counterpart of agglomerative clustering: rather
 This algorithm was first proposed in \cite{Girvan2002}, and focuses on analysing the edges of the network (rather than the vertices). In particular the algorithm chooses edges that lie "between" clusters-to-be, and removes them. This metric is called \emph{edge betweenness}, and is defined as "the number of shortest paths between pairs of vertices that run along it" \cite{Girvan2002}. Edges $e\in E$ with greater betweenness are likely to connect communities, and thus removing them encourages the partitioning of vertices \cite{Lu2012}.
 \begin{algorithm}
 \begin{algorithmic}[1]
-\label{alg_gn}
 \Function{gncommunity}{$X, K$}
 \Repeat
 \ForAll{edges $e \in E$}
@@ -483,18 +481,17 @@ This algorithm was first proposed in \cite{Girvan2002}, and focuses on analysing
 \State remove $\argmax_e{b(e)}$
 \Until{no edges have been affected by the last removal}
 \EndFunction
-\caption{The GN algorithm for community detection.}
+\caption{The GN algorithm for community detection.}\label{alg_gn}
 \end{algorithmic}
 \end{algorithm}
 \par The main disadvantage of this approach is that it does not handle weighted graphs, thus distance matrices cannot be used to find inner communities.
 
 \subsection{Soft-partitioning} \label{subsection_softpart}
 All the approaches presented until now assume that a single data point can only belong to one cluster or community. However, it is often the case that communities overlap, i.e. that there are at least two clusters $C_i, C_j$ such that $C_i \cap C_j \neq \emptyset$. An approach to solve this problem is proposed in \cite{Psorakis2010}, and relies on matrix factorisation techniques.
-\par Let $\V{V}$ be a matrix of interactions where $v_{i,j}$ denotes the number of interactions between objects $x_i, x_j$. Then, we can model $\hat{\V{V}}$ as the product of two rank $K$ matrices $\V{W} \in \mathbb{R}_+^{N \times K}, \V{H}\in \mathbb{R}_+^{K \times N}$, i.e. $\hat{\V{V}} = \V{WH}$, where $K$ is the number of hidden communities in the network. The product $w_i^Th_j$ can be seen as the \emph{expected number of participations} two individuales $x_i, x_j$ are expected to have - their mutual participation \cite{Psorakis2010}. However, the number of communities $K$ is usually unknown. The authors address this issue by placing automatic relevance determination priors $\V{B} = \text{diag}(\beta_k)$ on the latent variables $w_{ik}, h_{k, j}$ using a Gamma distribution with parameters $a, b$\cite{Psorakis2010a}.
+\par Let $\V{V}$ be a matrix of interactions where $v_{i,j}$ denotes the number of interactions between objects $x_i, x_j$. Then, we can model $\hat{\V{V}}$ as the product of two rank $K$ matrices $\V{W} \in \mathbb{R}_+^{N \times K}, \V{H}\in \mathbb{R}_+^{K \times N}$, i.e. $\hat{\V{V}} = \V{WH}$, where $K$ is the number of hidden communities in the network. The product $w_i^Th_j$ can be seen as the \emph{expected number of interactions} two individuals $x_i, x_j$ are expected to have - their mutual participation \cite{Psorakis2010}. However, the number of communities $K$ is usually unknown. The authors address this issue by placing automatic relevance determination priors $\V{B} = \text{diag}(\beta_k)$ on the latent variables $w_{ik}, h_{k, j}$ using a Gamma distribution with parameters $a, b$\cite{Psorakis2010a}.
 \par The parameters of this model can be found iteratively via algorithm \ref{alg_nmf} from \cite{Psorakis2010a}:
 \begin{algorithm}
 \begin{algorithmic}[1]
-\label{alg_nmf}
 \Function{nmf}{$V, K_0, a, b$}
 \Repeat
     \State $\V{H} \gets \frac{\V{H}}{\V{W}^T\V{1}+\V{BH}}\V{W}^T\V{\frac{\V{V}}{\V{WH}}}$
@@ -504,7 +501,7 @@ All the approaches presented until now assume that a single data point can only 
 $K_f \gets $ number of non-zero columns of $\V{W}$ or rows of $\V{H}$
 \State \textbf{return} $\V{W}_f \in \mathbb{R}_+^{N\times K_f}, \V{H}_f\in\mathbb{R}_+^{K_f\times N}$
 \EndFunction
-\caption{The GN algorithm for community detection.}
+\caption{The GN algorithm for community detection.}\label{alg_nmf}
 \end{algorithmic}
 \end{algorithm}
 \par Details on the derivation of these update rules can be found in \cite{Psorakis2010a,Psorakis2010a}. 
@@ -512,8 +509,8 @@ $K_f \gets $ number of non-zero columns of $\V{W}$ or rows of $\V{H}$
 
 \section{Conclusion}
 In this chapter we introduced a general pipeline to build relational structures, with three main processes: feature extraction, distance matrix computation, and cluster generation. Then, we described general aspects of birdsong that could be useful to choose appropriate techniques for later stages of the process. For each of the subsequent sections, we presented several techniques to "fill in the gaps" of the general pipeline described in section \ref{general_pipeline}.
-\par From section \ref{features_review}, we learned that one technique that is useful to model vocal sounds are formant. Although not much research of formants applied to birdsong has been done, this project could set some preliminary results to test whether they would be a faithful representation of birdsong data. Formants and a signal analysis review to fully understand them are covered in chapter \ref{chapter_formants}.
-\par Additionally, in section \ref{features_review}, we also learned that using an intermediate statistical model, such as a probability distribution or a Hidden Markov Model, can serve to summarise the content and structure of data. In \ref{chapter_hmms}, we further discuss the details on how to build this kind of models and expand the review of similarity metrics from \ref{metrics_review}.
-\par Then, hierarchical clustering is retaken in chapter \ref{chapter_hmms} as well. This approach can be useful to model dynamics in communities and clusters, especially in bird species, discovering structures under specific lifetimes is relevant. 
-\par To conclude, we have seen that although there is a limited amount of research on birdsong community detection, it can be quite approachable by filling the gaps of a generic pipeline - this means that this review also serves to set a basis for work to be done beyond this dissertation.
+\par From section \ref{features_review}, we learned that one technique that is useful to model vocal sounds are formants. Although not much research of formants applied to birdsong has been done, this project could set some preliminary results to test whether they would be a faithful representation of birdsong data. Formants and a signal analysis review to expand on them are covered in chapter \ref{chapter_formants}.
+\par Additionally, in section \ref{features_review}, we also learned that using an intermediate statistical model, such as a probability distribution or a Hidden Markov Model, can serve to summarise the content and structure of data. In chapter \ref{chapter_hmms}, we further discuss the details on how to build this kind of models and expand the review of similarity metrics from section \ref{metrics_review}.
+\par Furthermore, hierarchical clustering is retaken in chapter \ref{chapter_hmms} as well. This approach can be useful to model dynamics in communities and clusters, especially in bird species, discovering structures under specific lifetimes is relevant. 
+\par To conclude, we have seen that although there is a limited amount of research on birdsong community detection, solutions can be approached by filling the gaps of a generic pipeline - this means that this literature review is also useful for work to be done beyond this dissertation.
 \end{document}
