@@ -137,7 +137,22 @@ r_{xx}(k) = a_1r_{xx}(k-1) + a_2r_{xx}(k-2) + ... + a_pr_{xx}(k-p)
 \begin{align*}
 \V{r} &= \V{Ra}
 \end{align*}
-\par This implies that the AR($p$) model coefficients for a signal $\V{x}$ can be found given its autocorrelation matrix, i.e. $\hat{\V{a}} = \V{R}^{-1}\V{r}$. This is particularly useful if we remark that $\V{R}$ is a Toeplitz matrix, i.e. its diagonals all contain the same elements, since it makes this system more efficiently solvable by means of the Levinson-Durbin recursion algorithm, which is described in the next subsection.
+\par This implies that the AR($p$) model coefficients for a signal $\V{x}$ can be found given its autocorrelation matrix, i.e. $\hat{\V{a}} = \V{R}^{-1}\V{r}$. This is particularly useful if we remark that $\V{R}$ is a Toeplitz matrix, i.e. its diagonals all contain the same elements, since it makes this system more efficiently solvable by means of the Levinson-Durbin recursion algorithm, which is described in subsection \ref{subsection_levinson}.
+\par To finish this section, we present an interesting theorem that relates the Fourier Transform and the autocorrelation \cite{Weisstein2015c}. First, we introduce the autocorrelation $f\star f$ of a continuous function $f$ is defined as:
+\begin{align*}
+f \star f = \int_{-\infty}^\infty{\bar{f}(t)f(\tau + t)d\tau}
+\end{align*}
+\par where $\bar{f}$ denotes the complex conjugate of $f$. 
+
+\begin{theorem}{Wiener-Khinchin Theorem.} \label{thm_wiener}
+Let $\mathcal{F}\{f(t)\}(\omega) = F(\omega)$, with complex conjugate $\bar{F}$. Then, the following holds:
+\begin{align*}
+\mathcal{F}^{-1}\{\abs{F(\omega)}^2\}(t) &= \int_{-\infty}^\infty{\bar{f}(t)f(\tau + t)d\tau}\\
+&= f \star f
+\end{align*}
+\end{theorem}
+
+\par This result implies that the autocorrelation can be computed more efficiently by taking two FFT (i.e. $\mathcal{O}(n\log{n})$), rather than using the brute force approach (which is $\mathcal{O}(n^2)$).
 
 \subsection{The Levinson-Durbin recursion} \label{subsection_levinson}
 In this subsection, we present an algorithm that efficiently solves linear systems of equations when the matrix of coefficients is a Toeplitz matrix. This follows closely the work of \cite{Oppenheim2010} and \cite{Collomb2009}, thus the reader is referred to these for further details.
