@@ -100,7 +100,7 @@ with $\rho_0 \neq 0, \rho_p \neq 0$ and each $\epsilon_k$ is assumed to be uncor
 \end{definition}
 \par In other words, at time $t$, $x_t$ is a linear combination of the $p$ previous samples, plus Gaussian noise. Notice that we can write these equations in vector form. For example, for $p=3$:
 \begin{align*}
-\left[ \begin{array}{c} x_4 \\ x_5 \\ .. \\ x_N  \end{array} \right] &= \begin{bmatrix} x_3 & x_2 & x_1 \\ x_4 & x_3 & x_2 \\ .. & .. & .. \\ x_{N-1} & x_{N-2} & x_{N-3} \end{bmatrix} \left[ \begin{array}{c} a_1 \\ a_2 \\ a_3 \end{array} \right] + \left[ \begin{array}{c} e_3 \\ e_4 \\ .. \\ a_N \end{array}
+\left[ \begin{array}{c} x_4 \\ x_5 \\ .. \\ x_N  \end{array} \right] &= \begin{bmatrix} x_3 & x_2 & x_1 \\ x_4 & x_3 & x_2 \\ .. & .. & .. \\ x_{N-1} & x_{N-2} & x_{N-3} \end{bmatrix} \left[ \begin{array}{c} a_1 \\ a_2 \\ a_3 \end{array} \right] + \left[ \begin{array}{c} e_4 \\ e_5 \\ .. \\ a_N \end{array}
 \right]\\
 \V{x} &= \V{Ma} + \V{e}
 \end{align*}
