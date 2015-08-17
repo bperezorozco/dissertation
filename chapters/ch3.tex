@@ -1,17 +1,16 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document} \label{chapter_formants}
-Approx 5500 words.
 \par In this section, we give an in-depth review of formant trajectory extraction. As seen in section \ref{birdsong_review}, birdsong can be compared to human vowels in structure. Moreover, in subsection \ref{subsection_fmnts} we learned that formants can be useful to characterise human vowels. By establishing this link, it becomes reasonable to argue that formant trajectories would be a suitable choice for features. 
 \par Therefore, we dedicate this chapter to the study of formants, and we do so two-fold: in section \ref{section_dsp}, we present all the tools from Signal Processing required to introduce the concept of formants, and more generally, the Linear Predictive Coding framework, which is introduced in section \ref{section_lpc}. This enables us to give a thorough description of what formants mean, and how to compute them.
 
 \section{Signal analysis review} \label{section_dsp}
-In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be useful to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models and the autocorrelation function and present the Yule-Walker equations, which are useful to find the parameters of an autoregressive model, and the Levinson-Durbin recursion, which is a technique used to solve these equations. These are all key concepts to introduce Linear Predictive Coding in subsection \ref{subsection_lpc}. Finally, we introduce signal preprocessing techniques, which will contribute to the system architecture presented in section \ref{section_form_estimation}.
+In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be useful to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models, the autocorrelation function, the Yule-Walker equations, which are useful to set out the parameters of an autoreggresive model in terms of the autocorrelation. Next, we present the Levinson-Durbin recursion, which is a technique used to solve these last equations. Finally, we introduce signal preprocessing techniques, which will contribute to the system architecture presented in section \ref{section_form_estimation}. 
 
 \subsection{LTI systems in the time and frequency domains} \label{subsection_lti} 
 A discrete-time system's (DTS) definition is very closely linked to that of a discrete function. Any such system contains two sequences, an input sequence $\V{x} = (x_1, x_2, ..., x_n)$ and an output sequence $\V{y} = (y_1, y_2, ..., y_n)$, which are related by a transformation $T$, i.e. $\V{y} = T\{\V{x}\}$.  \cite{Oppenheim2010}. 
 \par Some DTS satisfy the properties of linearity and time-invariance, which are given below:
 \begin{definition}{Linearity.} \label{def_linearity}
-Let $T$ be the transformation of a DTS. We say that this DST is linear if and only if $T$ is linear, i.e. for all inputs $\V{x, x}'$ and corresponding outputs $\V{y, y}'$, and for all constants $a$, the following hold:
+Let $T$ be the transformation of a DTS. We say that this DTS is linear if and only if $T$ is linear, i.e. for all inputs $\V{x, x}'$ and corresponding outputs $\V{y, y}'$, and for all constants $a$, the following hold:
 \begin{align*}
 T\{\V{x} + \V{x}'\} &= T\{\V{x}\} + T\{\V{x}'\} \\
 &= \V{y} + \V{y}'\\
@@ -20,7 +19,7 @@ T\{a\V{x}\} &= aT\{\V{x}\}\\
 \end{align*}
 \end{definition}
 \begin{definition}{Time-invariance.} \label{def_ti}
-Let $\V{y}$ be the output of a DSTS for input $\V{x}$. This DST is said to be time-invariant if for all constants $n_0$ the following holds:
+Let $\V{y}$ be the output of a DTSS for input $\V{x}$. This DTS is said to be time-invariant if for all constants $n_0$ the following holds:
 \begin{align*}
 \forall n_0, x_k = x_{k+n_0} \implies y_k = y_{k+n_0}
 \end{align*}
@@ -42,8 +41,8 @@ y_n &= T\{\sum_{k=-\infty}^{\infty}x_k\delta_{n-k}\}\\
 \begin{definition}{Convolution.} \label{def_convolution}
 The convolution of two signals $\V{x, h}$ is defined as:
 \begin{align*}
-y_n &= \V{x} \Conv \V{h}\\
-&= \sum_{k=-\infty}^{\infty}x_kh_{n-k}
+\V{y} &= \V{x} \Conv \V{h}\\
+\implies y_n &= \sum_{k=-\infty}^{\infty}x_kh_{n-k}, \forall n
 \end{align*}
 \end{definition}
 \par Time signals are often analysed in the frequency domain because this unveils the contribution of different frequency components, which can be useful to distinguish useful information about the signal. In subsection \ref{subsection_fft}, we defined the the Fourier Transform $X = \mathcal{F}\{\V{x}\}$ for discrete signals. We recall that the Fourier Transform is a useful tool to compute the frequency-domain representation of a time signal. We now present some important results about it.
