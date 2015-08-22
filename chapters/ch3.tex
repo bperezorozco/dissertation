@@ -32,7 +32,7 @@ x_n = \sum_{k=-\infty}^{\infty}x_k\delta_{n-k}
 \begin{definition}{LTI system.} \label{def_lti}
 A DTS is said to be a Linear Time-Invariant (LTI) system if it satisfies the properties of linearity and time-invariance, as given in definitions \ref{def_linearity} and \ref{def_ti}. In other words, for two elements $x_n, y_n$ in sequences $\V{x, y}$, the following is true:
 \begin{align*}
-y_n &= T\{\sum_{k=-\infty}^{\infty}x_k\delta_{n-k}\}\\
+y_n &= T\left\{\sum_{k=-\infty}^{\infty}x_k\delta_{n-k}\right\}\\
 &= \sum_{k=-\infty}^{\infty}x_kT\{\delta_{n-k}\}\\
 &= \sum_{k=-\infty}^{\infty}x_kh_{n-k}
 \end{align*}
@@ -42,6 +42,9 @@ y_n &= T\{\sum_{k=-\infty}^{\infty}x_k\delta_{n-k}\}\\
 The convolution of two signals $\V{x, h}$ is defined as:
 \begin{align*}
 \V{y} &= \V{x} \Conv \V{h}\\
+\end{align*}
+where $\V{y} = (y_1, y_2, ..., y_n, ..., y_N)$ and
+\begin{align*}
 \implies y_n &= \sum_{k=-\infty}^{\infty}x_kh_{n-k}, \forall n
 \end{align*}
 \end{definition}
@@ -71,7 +74,7 @@ E &= \sum_{k=-\infty}^{\infty}\abs{x_n}^2\\
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{spec}
-\caption{Spectrogram from a birdsong recording of the species \emph{Vanillus vanillus}.}
+\caption{Spectrogram from a birdsong recording of the bird species \emph{Vanillus vanillus}. The horizontal axis represents time measured in seconds and the vertical axis is frequency measured in Hertz. A whiter colour means there was a greater amount of energy at that frequency bin, at that time.}
 \label{fig_spec}
 \end{figure}
 \par The last concept we present in this subsection is the z-transform, which is an alternate way of mapping a discrete-time signal into its frequency-domain representation. 
@@ -197,8 +200,8 @@ a_1 &= \frac{r_{xx}(1)}{r_{xx}(0)}\\
 
 \subsection{Signal preprocessing} \label{subsection_preproc}
 In this subsection, we describe procedures that are frequently used to preprocess signals to be analysed. In particular, we present the concepts of framing, windowing, pre-emphasis and feature scaling, all of which are useful (and often necessary) to apply the techniques discussed previously. The goal of preprocessing is to enhance the signal's features so as to make signal analysis easier and more accurate in later stages.
-\par The first preprocessing technique we discuss is pre-emphasis. This technique aims at "compensating the high-frequency part that was suppressed during the sound production mechanism of humans" \cite{Jang1996}, and consists in applying a highpass filter to the original signal. A filter that is commonly applied in the literature corresponds to an AR(1) model: $x'_n = x_n - \alpha x_{n-1}, 0.95< \alpha < 0.99 $ \cite{Shimodaira2013}. This results in a signal that "sounds sharper and at a lower volume" than the original \cite{Jang1996}. 
-\par Furthermore, as will be discussed in section \ref{section_lpc}, time signals are analysed in short intervals. The procedure of partitioning the signal into smaller sections is called segmentation, and the length of each segment is often given in milliseconds (ms). A discrete signal is always recorded along its sampling frequency $f_s$, which is the number of times per second a signal from the real world was sampled. Recurrent sampling frequencies include 22.5, 44.1 and 48 kHz. A concept associated to this is the Nyquist frequency $f_{\text{Nyquist}}$, which is the "highest frequency that can be coded at a given sampling rate in order to fully reconstruct the signal" \cite{Weisstein2015b}, and is given by half of the sampling frequency.
+\par The first preprocessing technique we discuss is pre-emphasis. This technique aims at ``compensating the high-frequency part that was suppressed during the sound production mechanism of humans" \cite{Jang1996}, and consists in applying a highpass filter to the original signal. A filter that is commonly applied in the literature corresponds to an AR(1) model: $x'_n = x_n - \alpha x_{n-1}, 0.95< \alpha < 0.99 $ \cite{Shimodaira2013}. This results in a signal that ``sounds sharper and at a lower volume" than the original \cite{Jang1996}. 
+\par Furthermore, as will be discussed in section \ref{section_lpc}, time signals are analysed in short intervals. The procedure of partitioning the signal into smaller sections is called segmentation, and the length of each segment is often given in milliseconds (ms). A discrete signal is always recorded along its sampling frequency $f_s$, which is the number of times per second a signal from the real world was sampled. Recurrent sampling frequencies include 22.5, 44.1 and 48 kHz. A concept associated to this is the Nyquist frequency $f_{\text{Nyquist}}$, which is the ``highest frequency that can be coded at a given sampling rate in order to fully reconstruct the signal" \cite{Weisstein2015b}, and is given by half of the sampling frequency.
 \par Once the length $l$ in seconds of each segment has been specified, we can calculate how many samples they contain by:
 \begin{align*}
 n_{\text{samples}} = l \* f_s
@@ -273,7 +276,7 @@ B = -\frac{f_s}{2\pi}\log{r} \text{Hz}
 \caption{Given an LTI system, its formants are the peaks of its spectral envelope. The bandwidth associated to each formant are depicted as red boxes next to each peak.}
 \label{fig_fmnts_lpc}
 \end{figure}
-\par This definition suggests that a narrower bandwidth implies a "peakier" formant, i.e. a particular frequency that contains more energy in a shorter interval. This implies that more characteristic formants are those with narrower bandwidths.
+\par This definition suggests that a narrower bandwidth implies a ``peakier" formant, i.e. a particular frequency that contains more energy in a shorter interval. This implies that more characteristic formants are those with narrower bandwidths.
 \par To wrap up, recall that this analysis is being done for a single instant of time, i.e. for a window of 20-50 ms of birdsong. Done in the long run, we can estimate a full trajectory of formants for each recording, and use it as a vector of features. This trajectory can be visualised in spectrograms, as depicted in figure \ref{fig_specformants}.
 \begin{figure}[t]
 \centering
