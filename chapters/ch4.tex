@@ -1,7 +1,7 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document} \label{chapter_hmms}
-In this chapter, we continue delving into the pipeline proposed in section \ref{general_pipeline}. Having extracted formant trajectories, we are now interested in building a more abstract structure that summarises their shape and content. This reflects the need to measure the similarity of the trajectories \emph{as a symbol}, rather than as discrete sequences of varying length. Once any such structure has been trained, a similarity measure can be used to crate a distance matrix, which serves as input to some of the relational structure building algorithms described in section \ref{algorithms_review}.
-\par Therefore, this chapter is divided in three steps: sections \ref{section_kde} and \ref{section_hmm} concern Kernel Density Estimation and Hidden Markov Models, which are related to the abstract structures discussed above; then, section \ref{section_similarity} presents similarity measures between probability densities and between Hidden Markov Models; finally, section \ref{section_hierarchical} reviews hierarchical clustering for building arborescent relational structures.
+In this chapter, we continue delving into the pipeline proposed in section \ref{general_pipeline}. Having extracted formant trajectories, we are now interested in building a more abstract structure that summarises their shape and content. This reflects the need to measure the similarity of the trajectories \emph{as a symbol}, rather than as discrete sequences of varying length. Once any such structure has been trained, a similarity measure can be used to create a distance matrix, which serves as input to some of the relational structure building algorithms described in section \ref{algorithms_review}.
+\par Therefore, this chapter is divided in three parts: sections \ref{section_kde} and \ref{section_hmm} concern Kernel Density Estimation and Hidden Markov Models, which are related to the abstract structures discussed above; then, section \ref{section_similarity} presents similarity measures between probability densities and between Hidden Markov Models; finally, section \ref{section_hierarchical} reviews hierarchical clustering for building arborescent relational structures.
 \par Although this chapter only gives a theoretical account of the techniques to further characterise birdsong, these form a key component to describe how they relate to birdsong. This discussion is saved for chapter \ref{chapter_account}, in which we give a full description of how each of these techniques can be combined with formant trajectories to characterise birdsong.
 
 \section{Kernel density estimation} \label{section_kde}
@@ -187,17 +187,19 @@ In other words, finding the distributions $q_\V{s}, q_\theta$ that best approxim
 \par A full treatment of how the VB framework can be used for continuous HMM training is given in \cite{Rezek2005}, and further details for discrete HMMs can also be found in \cite{Beal2001,MacKay1997}. In \cite{Rezek2005}, the authors approximate the posterior distributions for the transition and HMM initial state probabilities as Dirichlet distributions, and give an account of the models for different kinds of observations. In particular, for Gaussian observation models, they approximate the mean as a Normal Distribution and the precision matrices as Wishart densities. Further details on the parameters and update equations for them can be found in their work.
 \par One more key fact they mention is related to model selection for VB models: under certain assumptions, the state space dimension (number of states) $K$ need not be estimated by iterative training and testing of models. Instead, the system prunes states, i.e. states not visited by the model collapse and only those that correspond to the true number of clusters are used \cite{Rezek2005}. This proves particularly useful, given a sufficiently large number of states and a correct observation model, the HMMs need only be trained a single time.
 
+\section{Similarity measures between statistical models} \label{section_similarity}
+In this section, we resume the discussion on statistical model comparison from section \ref{metrics_review}. We concentrate on distance metrics between probability distributions and between HMMs and aim to give several distance metrics in order to compare the relational structures built out of them in chapter \ref{chapter_results}. 
+\par In section \ref{metrics_review}, we presented how to compute the similarity between two probability distributions. In particular, we discussed the Symmetric Kullback-Leibler divergence and the Hellinger distance for continuous probability densities, which can be approximated for discrete probability distributions $P, Q$ as follows:
+\begin{align*}
+d_{\text{SKLD}}(P, Q) &= \frac{KL\infdiv{P}{Q} + KL\infdiv{Q}{P}}{2}\\ &= \frac{1}{2}\sum_iP_i\log{\frac{P_i}{Q_i}} + Q_i\log{\frac{Q_i}{P_i}}\\
+d_{\text{H}}(P, Q) &= \sqrt{1 - \sum_i \sqrt{P_iQ_i}}
+\end{align*}
+\par These expressions prove useful when computing distances between non-parametric distributions, such as those obtained from Kernel Density Estimation. However, closed expressions for the KL Divergence and the Hellinger distance are often available for parametric distributions, hence making their computation much more efficient and accurate. Refer to appendix \ref{app1} for some examples.
+\par We are now concerned by computing the similarity between two HMMs. Similar to probability distribution similarity, HMM similarity has a broad range of options to choose from. Therefore, in subsection \ref{subsection_hmmsimreview} we present a summary of some of them. We also point out a key observation in the reviewed literature: metrics that compare HMMs often compute the similarity between the underlying emission models only, and use this as the similarity between both HMMs. Hence these metrics could potentially be missing information that is explained by the HMMs' transition models. Given this motivation to explore such similarity metrics, we dedicate subsection \ref{subsection_hmmsim} to do it.
 
-
-
-\section{ Similarity measures between statistical models (800 words)} \label{section_similarity}
-Describe the main motivation behind having measures between pdfs (as opposed to measures used for any pair of functions).
-
-
-\subsection{Distance between other statistical models}\label{subsection_models}
-In this subsection we consider the problem of measuring similarity between other statistical models. For the sake of illustrating the scenario, we will be focusing on a single family of models: Hidden Markov Models (HMMs). Although there is a wide variety of statistical models, focusing on one can be illustrative enough to show the arising challenges. A broader discussion on HMMs and their applications is given in chapter \ref{chapter_hmms}.
-\par The main point to raise in this review is that defining a measure for a statistical model requires knowing and establishing conditions on what similarity \emph{means} in the context of the model. For example, are two HMMs comparable only if they have the same number of states? How should distance metrics make use of the parameters of the model? How does the metric deal with inherent issues of the model, such as identifiability? There exists no clear, established answer to any of these.
-\par Nevertheless, some work has been done to define similarity measures for HMMs with available frameworks. For example, the authors of \cite{Lyngs1999} define a distance metric based on co-emission probability, i.e. based on the probability that two HMMs $h_1, h_2$ independently generate the same sequence of observations $s$. The co-emission probability is given by:
+\subsection{HMM similarity review} \label{subsection_hmmsimreview}
+In this subsection, we address the key issues in order to define a similarity metric between HMMs and present a few approaches available from the literature. In particular, we touch on the design challenges to define a similarity metric, such as: are two HMMs comparable only if they have the same number of states? How should distance metrics make use of the HMM's parameters? How does the metric deal with inherent issues of the model, such as identifiability? There exists no clear, established answer to any of these.
+\par The first work we review is \cite{Lyngs1999}, where the authors use co-emission probability, i.e. the probability that two HMMs $h_1, h_2$ independently generate the same sequence of observations $s$, in order to define a similarity metric. The co-emission probability is given by:
 \begin{align*}
 A(h_1, h_2) = \sum_{s\in \Sigma^*}P_{h_1}(s)P_{h_2}(s)
 \end{align*}
@@ -212,7 +214,7 @@ The Bayes Probability Error between two densities $p_1(\V{x}), p_2(\V{x})$ is gi
 P_e(p_1(\V{x}), p_2(\V{x})) = \int_\V{x}\min{\{\pi_1p_1(\V{x}), \pi_2p_2(\V{x})\}}d\V{x}
 \end{align*}
 \end{definition}
-\par The Bayes Probability Error can be understood as ``the area of overlap of two densities $p_1, p_2$ with priors $\pi_1, \pi_2$ under the restriction $\pi_1+\pi_2 = 1$". The authors train handwriting recognition HMMs and then define their misclassification error in terms of their similarity metric, which is defined as:
+\par The Bayes Probability Error can be understood as the area of overlap of two densities $p_1, p_2$ with priors $\pi_1, \pi_2$ under the restriction $\pi_1+\pi_2 = 1$. The authors train handwriting recognition HMMs and then define their misclassification error in terms of their similarity metric, which is defined as:
 \begin{align*}
 D(h_1, h_2) = 1 - 2P_e{(\mathcal{N}(h_1, \V{x}), \mathcal{N}(h_2, \V{x}))}
 \end{align*}
@@ -221,15 +223,94 @@ D(h_1, h_2) = 1 - 2P_e{(\mathcal{N}(h_1, \V{x}), \mathcal{N}(h_2, \V{x}))}
 \begin{align*}
 d(h_1, h_2) = \norm{\V{B}_1 - \V{B}_2}
 \end{align*}
-\par This metric has the disadvantage of not taking into account any of the other parameters in the HMMs. Furthermore, it is only defined for discrete-observation HMMs.
-\par To conclude, we review that HMM similarity is still an open problem, and that, in general, statistical model similarity poses several challenges that are inherent to the model itself, hence reducing the possibilities of finding a cross-model metric. In the case of HMMs, different approaches have used their parameters in different fashions to define metrics, some opting to not use all the parameters in their definition. A broader discussion on this is presented in chapter \ref{chapter_hmms}.
-\subsection{The Symmetric KL Divergence} (300 words)
-\subsection{The Hellinger Distance} (300 words)
-\subsection{Building similarity measures between HMMs (800 words) } 
-Note that the GMM in an HMM is different to a normal GMM. Calculating the similarity for between GMMs is just like calculating the distance between any two probability distributions, though no closed form exists. 
-\subsection{Symmetric KL Divergence between two GMMs}
-\subsection{Symmetric KL Divergence between two Dirichlet distributions}
+\par This metric has the disadvantage of not taking into account any of the other parameters in the HMMs. Furthermore, it is defined for discrete-observation HMMs only.
+\par In conclusion, we have seen that the HMM similarity literature is not very broad, and that it mostly focuses on performing comparison over emission and first-state distribution models, hence potentially reducing the impact of the transition parameters. This key issue is addressed in subsection \ref{subsection_hmmsim}.
 
-\section{ Hierarchical clustering (1000 words)} \label{section_hierarchical}
-Describe the linkage and dendrogram drawing procedures.
+
+\subsection{Further HMM metrics} \label{subsection_hmmsim}
+In this section, we expand on the discussion from subsection \ref{subsection_hmmsimreview} and propose similarity metrics between HMMs. In particular, we address three key concepts: firstly, we discuss metrics that measure the difference between emission models only; secondly, we present a metric between transition models; finally, we touch on how to handle identifiability when computing similarity between HMMs.
+\par As reviewed in subsection \ref{subsection_hmmsimreview}, the literature on HMM similarity focuses on computing similarity between emission models (potentially weighted by first-state distributions). While there is a potential loss of information as a result of not computing the similarity between transition models too, it is also true that some information still remains due to the HMM training algorithms. In particular, assume a continuous HMM with a GMM emission model. Notice that an HMM's GMM is fundamentally different from a stand-alone GMM.
+\par Since both are statistical models with latent variables, both can be trained using the Variational Bayes framework discussed in subsection \ref{subsection_model}. However, the actual implementation for each of them differs, given that HMMs have more parameters than stand-alone GMMs. In particular, the update rules $q_\V{z}^{(t+1)}(\V{z}), q_{\theta}^{(t+1)}(\theta)$ are different in each case, and thus there is no guarantee that an HMM's GMM and a stand-alone GMM over the same data will be the same. This suggests that an HMM's GMM is still taking some structure information to train the emission model.
+\par Nevertheless, there is no closed form to compute neither the KL divergence nor the Hellinger distance between two GMMs. As a consequence, the GMM has to be evaluated over a region in order to perform these calculations, which results in an expensive procedure, but one that will still be evaluated further in chapter \ref{chapter_results}.
+\begin{align*}
+D_{\text{GMM}}(\lambda_p, \lambda_q) = d( \phi_p, \phi_q )
+\end{align*}
+Where $\lambda_p, \lambda_q$ are two HMMs with GMM emission models $\phi_p, \phi_q$ respectively.
+\par Now, we discuss similarity between transition models. Recall from subsection \ref{subsection_model} that the transition model's posterior distribution is a Dirichlet given a Dirichlet prior and a categorical likelihood. This suggests that the similarity of two HMMs could also be computed by comparing these Dirichlets.
+\par However, defining such a metric requires satisfying all the properties presented in definition \ref{def_metric}. The first challenge that arises is related to identifiability. In particular, let $\lambda_P, \lambda_Q$ be two HMMs, with $\psi_{P, k}, \psi_{Q, l}$ being the Dirichlets corresponding to state $k$ of $\lambda_1$ and state $l$ of $\lambda_2$. Assume that $\lambda_P, \lambda_Q$ have the same number of states $K$, then each model has exactly $K!-1$ equivalent models up to a permutation of states. \par One way to solve this issue is by establishing a heuristic that maps all $K!$ equivalent models to the same one. Sorting is a useful procedure for this scenario assuming that we sort the HMM states by a characteristic that equivalent models share. To that end, let us define the occupancy of a state with respect to a sequence $\V{x}$. Without loss of generality, we assume that this sequence is the one used to train the HMM.
+\begin{definition}\label{def_occupancy}
+Let $\lambda$ be an HMM with $K$ states $Q = \{q_1, q_2, ..., q_K\}$, and let $\V{x}$ be a sequence of $N$ observations with most likely sequence of states $\V{z}_o$. Then, the occupancy of state $i$ with respect to $\V{x}$ is defined as:
+\begin{align*}
+\Omega_\lambda(i) = \frac{\sum_{i=1}^N\mathbb{I}(z_{i} = q_i)}{N}
+\end{align*}
+\end{definition}
+\par The vector $\Omega_\lambda$ forms a discrete probability distribution over the states $Q$, and it also induces an ordering over all $K!$ equivalent HMMs. In particular, for a given sequence $\V{x}$, assume $\Omega_\lambda(i) \neq \Omega_\lambda(j), \forall i\neq j$ and define $R = \{(q_i, q_j) \given \Omega_\lambda(i) \leq \Omega_\lambda(j)\}$. It is easy to see that $R$ is:
+\begin{itemize}
+\item reflexive, $\Omega_\lambda(i) \leq \Omega_\lambda(i) \forall i$,
+\item antisymmetric, $\Omega_\lambda(i) \leq \Omega_\lambda(j), \Omega_\lambda(j) \leq \Omega_\lambda(i) \implies i = j$ is always true by assuming $\Omega_\lambda(i) \neq \Omega_\lambda(j), \forall i\neq j$,
+\item and transitive $\Omega_\lambda(i) \leq \Omega_\lambda(j), \Omega_\lambda(j) \leq \Omega_\lambda(k) \implies \Omega_\lambda(i) \leq \Omega_\lambda(k)$
+\end{itemize}
+and thus it forms a partial order.
+\par Now, let $\lambda_p^\text{*}$ be the HMM whose states are sorted by occupancy, i.e. $q_1^\text{*} < q_2^\text{*} < ... < q_K^\text{*}$. Notice that we can establish a bijection between any other equivalent $\lambda_p$ with states $Q = \{q_1, q_2, ..., q_K\}$ and $\lambda_p^\text{*}$ by mapping $q_i \rightarrow q_i^\text{*}$. In other words, for any two equivalent $\lambda_p, \lambda_p'$ with $\Omega_{\lambda_p}, \Omega_{\lambda_p'}$ defined over the same sequence $\V{x}$, then $\Omega_{\lambda_p} = P\Omega_{\lambda_p'}$ for some permutation matrix $P$. Intuitively, if we let $\V{z}_p, \V{z}_{p'}$ be the most likely sequences of states for the observations $\V{x}$, then we can transform $\V{z}_p$ into $\V{z}_{p'}$ simply by renaming the sequence according to $q_i \rightarrow q_i^\text{*}$. Notice that this does not change the proportion of each state, we are just permuting the occupancy vector.
+\par We can now define a similarity metric between any two HMMs $\lambda_p, \lambda_q$ with the same number of states, with occupancy-sorted states and assuming that no two states have the same occupancy (although this condition can be relaxed assuming that we can compare the emission models per state - the goal is to formally guarantee distinguishability between states). The distance $D_{\text{Trans}}(\lambda_p, \lambda_q)$ between two HMMs $\lambda_p, \lambda_q$ is defined as:
+\begin{align*}
+D_{\text{Trans}}(\lambda_p, \lambda_q) = \sum_{i=1}^K d(\psi_{p, i}, \psi_{q, i})
+\end{align*}
+where $\phi_{p, i}, \phi_{q, i}$ are the Dirichlet distributions associated to the transitions from state $i$ and $d$ is a probability distribution distance metric, such as the SKLD. Notice that this definition satisfies the properties of a similarity function:
+\begin{itemize}
+\item Symmetry. $D_{\text{Trans}}(\lambda_p, \lambda_q) = \sum_{i=1}^K d(\psi_{p, i}, \psi_{q, i}) = \sum_{i=1}^K d(\psi_{q, i}, \psi_{p, i}) D_{\text{Trans}(\lambda_q, \lambda_p)}$
+\item $D_{\text{Trans}}(\lambda_p, \lambda_p) = \sum_{i=1}^K d(\psi_{p, i}, \psi_{p, i}) = 0$
+\item Triangle inequality. $D_{\text{Trans}(\lambda_p, \lambda_r)} = \sum_{i=1}^K d(\psi_{p, i}, \psi_{r, i}) \leq \sum_{i=1}^K d(\psi_{p, i}, \psi_{q, i}) + d(\psi_{q, i}, \psi_{r, i}) = D_{\text{Trans}}(\lambda_p, \lambda_q) + D_{\text{Trans}(\lambda_q, \lambda_r)}$
+\end{itemize}
+\par Nevertheless, one could still argue that a VB would have some states that are seldom used would have a negative impact to obtain a faithful computation of similarity: if two states $q_i \in Q_p, q_j \in Q_q$ are very rarely used, then their similarity is not as relevant as the rest of the states in $Q_p, Q_q$. To address this issue, we introduce a weighted metric:
+\begin{align*}
+D_{\text{Trans}}(\lambda_p, \lambda_q) = \sum_{i=1}^K \frac{\Omega_{lambda_p}(i) + \Omega_{\lambda_q}(i)}{2} d(\psi_{p, i}, \psi_{q, i})
+\end{align*}
+that weights the contribution of each pair of states according to its averaged occupancy.
+\par In conclusion, this section addressed the issues of computing the similarity between probability distributions and between HMMs. Whereas this task has been widely studied for the former, the same cannot be said for the latter. Proposing a similarity metric between HMMs, and finding an optimal way to combine the similarity of each pair of parameters into a single scalar is still an open problem. To this end, we proposed two metrics: one that calculates the distance between the emission models of the HMMs, and one that computes the similarity between the transition models. The results of both of these metrics are compared and contrasted in chapter \ref{chapter_results}.
+
+\section{Hierarchical clustering} \label{section_hierarchical}
+In this section, we continue the discussion from section \ref{algorithms_review} on how to build relational structures given a similarity matrix as input. Particularly, we focus on agglomerative hierarchical clustering (AHC), which is a technique to progressively build arborescent structures.
+\par As reviewed in section \ref{algorithms_review}, AHC consists in initialising $N$ singleton clusters from the dataset $\mathcal{X} = \{x_1, x_2, ..., x_N\}$ and progressively merge them until only a single cluster containing all of $\mathcal{X}$ remains. Each level of the hierarchy is a subset of the dataset $\mathcal{X}$, and the number of subsets never increases over time.
+\par The algorithm is displayed in \ref{alg_ahc}. It comprises only two stages: a merging phase, in which the two closest clusters are merged, and a recalculation stage, in which the similarity between the newly created cluster and the rest is recalculated. How the new similarities are computed depends on the linkage method. The three most widely known linkage methods \cite{hastie2008} are described below:
+\par Single linkage consists of letting the two clusters $G, H$ be as close as they can be by choosing the distance of their closest elements. In other words:
+\begin{align*}
+d_{SL} = \min_{i \in G, i' \in H} d_{i, i'}
+\end{align*}
+\par Similarly, the complete linkage method chooses the two elements that are the furthest apart:
+\begin{align*}
+d_{CL} = \max_{i \in G, i' \in H} d_{i, i'}
+\end{align*}
+\par Finally, group average clustering instead takes the average distance between each pair:
+\begin{align*}
+d_{GA} = \frac{1}{\abs{G}\abs{H}}\sum_{i\in G}\sum_{i'\in H}d_{i, i'}
+\end{align*}
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Function{AHC}{$X, M$}
+\Repeat
+\State Merge the two closest clusters
+\State Recalculate similarity between the new cluster and the rest
+\Until{only a single cluster remains}
+\EndFunction
+\caption{The Agglomerative Hierarchical Clustering algorithm.}\label{alg_ahc}
+\end{algorithmic}
+\end{algorithm}
+\par Note that all three methods tend to show the same results for data that exhibits clustering tendencies \cite{hastie2008}, i.e. tight clusters well apart from each other.
+\par Dendrograms are visual representations of agglomerative clustering. In section \ref{algorithms_review}, we presented dendrograms - visual representations of hierarchical clustering algorithms. Moreover, we discussed the monotonicity property of AHC algorithms, which guarantees the existence of a dendrogram representation.
+\par Finally, it is worth noting that the performance of each linking method can be evaluated by means of the cophenetic correlation coefficient, which is the correlation between each pairwise similarity $d_{i,i'}$ and their corresponding cophenetic dissimilarities \cite{hastie2008}. 
+\par Assume we calculate the linkage over the objects of the set $\mathcal{X}$, with distances $D = (d_{i, i'})_{i, i'}$ between objects $x_i, x_{i'}$. Furthermore, define the cophenetic similarity $C = (c_{i,i'})_{i, i'}$ between $x_i, x_{i'}$ as the intergroup dissimilarity at which both observations are first joined in the same cluster, and let
+\begin{align*}
+\bar{d} = \frac{1}{N(N-1)/2}\sum_{i < i'} d_{i, i'}\\
+\bar{c} = \frac{1}{N(N-1)/2}\sum_{i < i'} c_{i, i'}
+\end{align*}
+Then, the cophenetic correlation coefficient $p$ is given by \cite{Mathworks2015a}:
+\begin{align*}
+p = \frac{\sum_{i < i'}(d_{i, i'} - \bar{d})(c_{i, i'} - \bar{c})}{\sqrt{\sum_{i < i'}(d_{i, i'} - \bar{d})^2\sum_{i < i'}(c_{i,i'} - \bar{c})^2}}
+\end{align*}
+\par The cophenetic correlation coefficient can then be used to determine what linkage technique is most faithful to the original distance matrix.
+
+\section{Conclusion}
+In this chapter, we finished filling in the gaps of the general pipeline proposed in section \ref{general_pipeline}. In particular, we introduced statistical models that summarise data, and motivated their use by emphasising how they study formant trajectories as symbols, rather than vectors of varying length. This summarisation proves particularly useful in order to characterise the content and shape of formant trajectories. Moreover, we also discussed several similarity metrics between statistical models and their issues. Finally, we offered a deeper presentation of hierarchical agglomerative clustering, an algorithm that produces arborescent relational structures from data. We will put all these techniques together in chapter \ref{chapter_account} by giving details and addressing issues on their implementation.
 \end{document}

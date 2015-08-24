@@ -1,0 +1,43 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document} \label{app1}
+\section{KL Divergence}
+Here we present closed forms for the KL Divergence of some parametric probability distributions, as detailed in \cite{Rezek2005}.
+\begin{itemize}
+\item Let $p \sim \text{Dir}(\V{\alpha}_p), q \sim \text{Dir}(\V{\alpha}_q)$, then
+\begin{align*}
+KL\infdiv{q}{p} &= \log{\left(\frac{\Gamma(\alpha_{p,0})}{\Gamma(\alpha_{q,0})}\right)} + \sum_{l=1}^k\log{\frac{\Gamma(\V{\alpha}_{p, l})}{\Gamma(\V{\alpha}_{p, l})}} + \sum_{l=1}^k(\V{\alpha}_{q,l}-\V{\alpha}_{p,l})\left(\psi(\V{\alpha}_{q,l})-\psi(\alpha_{q,0})\right)\\
+\alpha_0 &= \sum_{i=1}^N\V{\alpha}_i
+\end{align*}
+And $\psi(x)$ is the Digamma function, given by:
+\begin{align*}
+\psi(x) = \frac{d}{dx}\log{\Gamma(x)} = \frac{\Gamma'(x)}{\Gamma(x)}
+\end{align*}
+\item Let $p \sim \text{Wi}(B_p, \alpha_p), q \sim \text{Wi}(B_q, \alpha_q)$, then
+\begin{align*}
+KL\infdiv{q}{p} &= \sum_{l=1}^k\log{\frac{\Gamma((2\alpha_p + 1 - l)/2)}{(2\alpha_q + 1 - l)/2}}+(\alpha_q-\alpha_p)\sum_{l=1}^k\psi\left(\frac{2\alpha_q + 1 - l}{2}\right)\\&+\alpha_q\log{\frac{\abs{B_q}}{\abs{B_p}}} + \alpha_q(\text{tr}(B_qB_p^{-1}-k))
+\end{align*}
+Where $\abs{B}, \text{tr}(B)$ are the determinant and trace of matrix $B$, respectively.
+\item Let $p \sim \mathcal{N}(\mu_p, \Sigma_p), q \sim \mathcal{N}(\mu_q, \Sigma_q)$, then
+\begin{align*}
+KL\infdiv{q}{p}=\frac{1}{2}\left(\log{\frac{\abs{\Sigma_p}}{\abs{\Sigma_q}}}-K+\text{tr}(\Sigma_q\Sigma_p^{-1})+(\mu_q-\mu_p)^T\Sigma_p^{-1}(\mu_q-\mu_p)\right)
+\end{align*}
+\end{itemize}
+\section{Hellinger Distance}
+In this section we introduce closed forms for the Hellinger distance (or equivalently, for the Bhattacharyya coefficient) of some parametric distributions:
+\begin{itemize}
+\item Let $p \sim \text{Dir}(\V{\alpha}_p), q \sim \text{Dir}(\V{\alpha}_q)$, then the Bhattacharyya coefficient $\rho(p, q)$ is given by \cite{Rauber2008}:
+\begin{align*}
+\rho(p, q) &= \frac{\Pi_{l=1}^k\Gamma(\beta_l)}{\Gamma(\sum_{l=1}^k\beta_l)}\frac{\sqrt{\Pi_{l=1}^k\Gamma(\beta_l)}}{\sqrt{\Pi_{l=1}^k\Gamma(\alpha_{p,l})\Pi_{l=1}^k\Gamma(\alpha_{p,l})}}\\
+\beta_l &= \frac{\alpha_{p,l}+\alpha_{q,l}}{2}
+\end{align*}
+\item Let $p \sim \mathcal{N}(\mu_p, \Sigma_p), q \sim \mathcal{N}(\mu_q, \Sigma_q)$, then the Hellinger distance between is given by \cite{Dasgupta}:
+\begin{align*}
+D_H(p, q) = 1 - \frac{\abs{\Sigma_p}^{1/4}\abs{\Sigma_q}^{1/4}}{\abs{\bar{\Sigma}}^{1/2}}\exp{\left\{-\frac{1}{8}(\mu_p-\mu_q)^T\bar{\Sigma}^{-1}(\mu_p-\mu_q)\right\}}\\
+\end{align*}
+Where
+\begin{align*}
+\bar{\Sigma} = \frac{\Sigma_p+\Sigma_q}{2}
+\end{align*}
+
+\end{itemize}
+\end{document}

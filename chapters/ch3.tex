@@ -1,14 +1,14 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document} \label{chapter_formants}
-\par In this chapter, we give an in-depth review of formant trajectory extraction. As seen in section \ref{birdsong_review}, birdsong can be compared to human vowels in structure. Moreover, in subsection \ref{subsection_fmnts} we learned that formants can be useful to characterise human vowels. By establishing this link, it becomes reasonable to argue that formant trajectories would be suitable as feature vectors. 
+\par In this chapter, we give an in-depth review of formant trajectory extraction. As reviewed in section \ref{birdsong_review}, birdsong can be compared to human vowels in structure. Moreover, in subsection \ref{subsection_fmnts} we learned that formants can be useful to characterise human vowels.  
 \par Therefore, we dedicate this chapter to the study of formants, and we do so two-fold: in section \ref{section_dsp}, we present all the tools from Signal Processing required to introduce the concept of formants, and more generally, the Linear Predictive Coding framework, which is introduced in section \ref{section_lpc}. This enables us to give a thorough description of what formants mean, and how to compute them.
 
 \section{Signal analysis review} \label{section_dsp}
-In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be useful to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models, the autocorrelation function, the Yule-Walker equations, which are useful to set out the parameters of an autoreggresive model in terms of the autocorrelation. Next, we present the Levinson-Durbin recursion, which is a technique used to solve these last equations. Finally, we introduce signal preprocessing techniques, which will contribute to the system architecture presented in section \ref{section_form_estimation}. 
+In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be useful to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models, the autocorrelation function, the Yule-Walker equations, which are useful to set out the parameters of an autoregresive model in terms of the autocorrelation. Next, we present the Levinson-Durbin recursion, which is a technique used to solve these last equations. Finally, we introduce signal preprocessing techniques which will contribute to the system architecture presented in section \ref{section_form_estimation}. 
 
 \subsection{LTI systems in the time and frequency domains} \label{subsection_lti} 
 A discrete-time system's (DTS) definition is very closely linked to that of a discrete function. Any such system contains two sequences, an input sequence $\V{x} = (x_1, x_2, ..., x_n)$ and an output sequence $\V{y} = (y_1, y_2, ..., y_n)$, which are related by a transformation $T$, i.e. $\V{y} = T\{\V{x}\}$.  \cite{Oppenheim2010}. 
-\par Some DTS satisfy the properties of linearity and time-invariance, which are given below:
+\par Many DTS satisfy the properties of linearity and time-invariance, given below:
 \begin{definition}{Linearity.} \label{def_linearity}
 Let $T$ be the transformation of a DTS. We say that this DTS is linear if and only if $T$ is linear, i.e. for all inputs $\V{x, x}'$ and corresponding outputs $\V{y, y}'$, and for all constants $a$, the following hold:
 \begin{align*}
@@ -24,11 +24,10 @@ Let $\V{y}$ be the output of a DTSS for input $\V{x}$. This DTS is said to be ti
 \forall n_0, x_k = x_{k+n_0} \implies y_k = y_{k+n_0}
 \end{align*}
 \end{definition}
-\par Now, let $\V{\delta}$ be the unit sample sequence, i.e. $\V{\delta}_n = 1 \iff n = 0$, and $\V{\delta}_n = 0$ otherwise. It is easy to see that any element $x_n$ of a sequence $\V{x}$ can be expressed as an infinite sum with the following shape:
+\par Now, let $\V{\delta}$ be the unit sample sequence, i.e. $\V{\delta}_n = 1 \iff n = 0$, and $\V{\delta}_n = 0$ otherwise. We note that any element $x_n$ of a sequence $\V{x}$ can be expressed as an infinite sum with the following expression:
 \begin{align*}
 x_n = \sum_{k=-\infty}^{\infty}x_k\delta_{n-k}
 \end{align*}
-\par This decomposition is useful to define an LTI system:
 \begin{definition}{LTI system.} \label{def_lti}
 A DTS is said to be a Linear Time-Invariant (LTI) system if it satisfies the properties of linearity and time-invariance, as given in definitions \ref{def_linearity} and \ref{def_ti}. In other words, for two elements $x_n, y_n$ in sequences $\V{x, y}$, the following is true:
 \begin{align*}
@@ -48,9 +47,9 @@ where $\V{y} = (y_1, y_2, ..., y_n, ..., y_N)$ and
 \implies y_n &= \sum_{k=-\infty}^{\infty}x_kh_{n-k}, \forall n
 \end{align*}
 \end{definition}
-\par Time signals are often analysed in the frequency domain because this unveils the contribution of different frequency components, which can be useful to distinguish useful information about the signal. In subsection \ref{subsection_fft}, we defined the the Fourier Transform $X = \mathcal{F}\{\V{x}\}$ for discrete signals. We recall that the Fourier Transform is a useful tool to compute the frequency-domain representation of a time signal. We now present some important results about it.
+\par Time signals are often analysed in the frequency domain because this unveils the contribution of different frequency components, which can be useful to distinguish information about the signal. In subsection \ref{subsection_fft}, we defined the the Fourier Transform $X = \mathcal{F}\{\V{x}\}$ for discrete signals. We recall that the Fourier Transform is a useful tool to compute the frequency-domain representation of a time signal. We now present some important results about it.
 \begin{theorem}{The Convolution Theorem.} \label{theo_conv}
-Let $\V{x, h, y}$ be time-domain signals with $y_n = \V{x}\Conv\V{h}, \forall n$. Then, their respective Fourier Transforms $X, H, Y$ satisfy:
+Let $\V{x, y}$ be time-domain signals and let $\V{h}$ be the impulse response of an LTI system, with $\V{y} = \V{x}\Conv\V{h}$. Then, their respective Fourier Transforms $X, H, Y$ satisfy:
 \begin{align*}
 Y(e^{j\omega}) = X(e^{j\omega})H(e^{j\omega})
 \end{align*}
@@ -77,7 +76,7 @@ E &= \sum_{k=-\infty}^{\infty}\abs{x_n}^2\\
 \caption{Spectrogram from a birdsong recording of the bird species \emph{Vanillus vanillus}. The horizontal axis represents time measured in seconds and the vertical axis is frequency measured in Hertz. A whiter colour means there was a greater amount of energy at that frequency bin, at that time.}
 \label{fig_spec}
 \end{figure}
-\par The last concept we present in this subsection is the z-transform, which is an alternate way of mapping a discrete-time signal into its frequency-domain representation. 
+\par The last concept we present in this subsection is the z-transform, which is a method to compute the frequency domain representation of a discrete signal.
 \begin{definition}{Z-transform.} \label{def_ztransform}
 Given a discrete-time signal $\V{x}$, its z-transform, denoted by $\mathcal{Z}\{\V{x}\}$, is given by:
 \begin{align*}
@@ -91,13 +90,13 @@ Given a signal $\V{x}$, with z-transform $X(z)$, and a time shift-version $\V{x}
 X'(z) = \mathcal{Z}\{\V{x}'\} = z^{-k}X(z)
 \end{align*}
 \end{definition}
-\par Similar to the Fourer transform, the z-transform also satisfies the convolution property. In particular, given an LTI system $y_n = \sum_{-\infty}^\infty{x_kh_{n-k}}$, applying the z-transform on both sides yields $Y(z) = H(z)X(z)$, where $H(z($ is called the \emph{system function}.
+\par Similar to the Fourer transform, the z-transform also satisfies the convolution property. In particular, given an LTI system $y_n = \sum_{-\infty}^\infty{x_kh_{n-k}}$, applying the z-transform on both sides yields $Y(z) = H(z)X(z)$, where $H(z)$ is called the \emph{system function}.
 \subsection{Autoregressive models and the autocorrelation function} \label{subsection_autoregression}
 In this section, we describe useful statistical tools to analyse signals over time. This presentation follows closely the concepts shown in \cite{Roberts2014}, and the reader is referred to it for further details. An \emph{autoregressive model} is one that assumes that an element $x_t$ of a time series is a linear combination of previous samples, added to a random component that is assumed to be Gaussian. Autoregressive models are defined in \cite{Johnston} as follows:
 \begin{definition}{p-th order Autoregressive Model.} \label{def_ar}
 The \emph{p-th} order autoregressive time series (often written AR($p$)) $X_k$ is given by the following equations:
 \begin{align*}
-\sum_{i=0}^p{\rho_iX_{k-i}} = \epsilon_k
+\sum_{i=1}^p{\rho_iX_{k-i}} = \epsilon_k
 \end{align*}
 with $\rho_0 \neq 0, \rho_p \neq 0$ and each $\epsilon_k$ is assumed to be uncorrelated and sampled from $\mathcal{N}(0, \sigma^2)$.
 \end{definition}
@@ -196,21 +195,21 @@ a_1 &= \frac{r_{xx}(1)}{r_{xx}(0)}\\
 \xi^{(k+1)} = \xi^{(k)} - \lambda_i\gamma^{(k)} = \xi^{(k)}(1-\lambda_k^2)
 \end{align*}
 \par For this choice, we have a vector with shape $\V{e}^{(k+1)}$. Therefore, we can state that the prediction coefficients of order $k+1$ are given by $a_j^{(k+1)} = a_j^{(k)}-\lambda_ka_{k-j-1}^{(k)}, j = 1,2,...,k$ and  $a_k^{(k)} = \lambda_k$. 
-\par The original Levinson recursion solves the system of equations in $\Theta(n^2)$ operations, however more recent versions are able to solve it in $\Theta(n\log{n})$.
+\par The original Levinson recursion solves the system of equations in $\mathcal{O}(n^2)$ operations, however more recent versions are able to solve it in $\mathcal{O}(n\log{n})$.
 
 \subsection{Signal preprocessing} \label{subsection_preproc}
 In this subsection, we describe procedures that are frequently used to preprocess signals to be analysed. In particular, we present the concepts of framing, windowing, pre-emphasis and feature scaling, all of which are useful (and often necessary) to apply the techniques discussed previously. The goal of preprocessing is to enhance the signal's features so as to make signal analysis easier and more accurate in later stages.
-\par The first preprocessing technique we discuss is pre-emphasis. This technique aims at ``compensating the high-frequency part that was suppressed during the sound production mechanism of humans" \cite{Jang1996}, and consists in applying a highpass filter to the original signal. A filter that is commonly applied in the literature corresponds to an AR(1) model: $x'_n = x_n - \alpha x_{n-1}, 0.95< \alpha < 0.99 $ \cite{Shimodaira2013}. This results in a signal that ``sounds sharper and at a lower volume" than the original \cite{Jang1996}. 
+\par The first preprocessing technique we discuss is pre-emphasis. This technique aims at ``compensating the high-frequency part that was suppressed during the sound production mechanism of humans" \cite{Jang1996}, and consists in applying a highpass filter to the original signal. A filter that is commonly applied in the literature corresponds to an AR(1) model: $x'_n = x_n - \alpha x_{n-1}, 0.95< \alpha < 0.99 $ \cite{Shimodaira2013}. This results in a signal that sounds sharper and at a lower volume than the original \cite{Jang1996}. 
 \par Furthermore, as will be discussed in section \ref{section_lpc}, time signals are analysed in short intervals. The procedure of partitioning the signal into smaller sections is called segmentation, and the length of each segment is often given in milliseconds (ms). A discrete signal is always recorded along its sampling frequency $f_s$, which is the number of times per second a signal from the real world was sampled. Recurrent sampling frequencies include 22.5, 44.1 and 48 kHz. A concept associated to this is the Nyquist frequency $f_{\text{Nyquist}}$, which is the ``highest frequency that can be coded at a given sampling rate in order to fully reconstruct the signal" \cite{Weisstein2015b}, and is given by half of the sampling frequency.
 \par Once the length $l$ in seconds of each segment has been specified, we can calculate how many samples they contain by:
 \begin{align*}
 n_{\text{samples}} = l \* f_s
 \end{align*}
 \par However, performing this procedure creates discontinuities at the edges of each segment that were not originally present in the signal. As a result, the Fourier spectrum has more energy in high-frequency components \cite{NationalInstruments2015} that were not present before segmentation. This phenomenon is called spectral leakage, and its effects can be reduced by convolving the segment with a windowing function. 
-\par There is a broad range of windowing functions, but two of the most well-known and frequently used are the Hamming window and the Hann window. Both are sinusoidal curves with wide peaks and low side lobes. This implies that the discontinuities at the edges of each segment are reduced, therefore reducing spectral leakage. However, the Hamming window does not quite reach zero at the lobes, and thus it does a better job of cancelling the nearest side lobe \cite{NationalInstruments2015}, at the expense of not removing all discontinuities, like the Hann window does.
+\par There is a broad range of windowing functions, but two of the most well-known and frequently used are the Hamming window and the Hann window. Both are cosine bell curves with wide peaks and low side lobes. This implies that the discontinuities at the edges of each segment are reduced, therefore reducing spectral leakage. However, the Hamming window does not quite reach zero at the lobes, and thus it does a better job of cancelling the nearest side lobe \cite{NationalInstruments2015}, at the expense of not removing all discontinuities, like the Hann window does.
 \par Both windows of length $N$ are given by:
 \begin{align*}
-w(n) = \alpha - \beta \cos{(\frac{2\pi n}{N-1})}
+w(n) = \alpha - \beta \cos{\left(\frac{2\pi n}{N-1}\right)}
 \end{align*}
 \par The Hamming window has values $\alpha = 0.54, \beta = 1 - \alpha = 0.46$, whereas the Hann window sets both values $\alpha = \beta = 0.5$. A comparison of both windows is shown in figure \ref{fig_windows}.
 \begin{figure}[t]
@@ -223,8 +222,8 @@ w(n) = \alpha - \beta \cos{(\frac{2\pi n}{N-1})}
 \begin{align*}
 x'_i = \frac{x_i - \mu_x}{\sigma_x}
 \end{align*}
-\par and use this as data instead.
-\par In conclusion. pre-processing techniques enable us to perform signal analysis techniques, while at the same time enhancing the accuracy of the results. The impact of these techniques will become clearer once we have decribed the Linear Prediction of Speecg framework in the next section.
+and use this as data instead.
+\par In conclusion. pre-processing techniques enable us to perform signal analysis techniques, while at the same time enhancing the accuracy of the results. The impact of these techniques will become clearer once we have decribed the Linear Prediction of Speech framework in the next section.
 
 \section{Linear Predictive Coding} \label{section_lpc}
 In this section, we use the tools shown in section \ref{section_dsp} to give a full description of formants. In order to do so, we present the framework of Linear Prediction of Speech, which serves as a theoretical basis to build a bridge between signal analysis and phonetics, and then introduce the concepts of formants and bandwidths. As described previously, human speech vowels and birdsong are very similar in structure, and thus using a model of speech to model birdsong is reasonable given the right assumptions. This is discussed in section \ref{subsection_lpc}.
@@ -255,17 +254,17 @@ H(z) = \frac{1}{A(z)} = \frac{1}{1-\sum_{i=1}^pa_iz^{-i}}
 \begin{align*}
 H(z) = \frac{1}{1 - \sum_{i=1}^pa_iz^{-i}} = \frac{1}{A(z)}
 \end{align*}
-\par We are now ready to present formants:
+We are now ready to present formants:
 \begin{definition}{Formants.} \label{def_formants}
-In the Linear Prediction of Speech framework, the formants of a signal are the resonances of the vocal tract, i.e. the frequencies associated with the poles of the system function $H(z)$ \cite{Snell1993}. In other words, given a pair of complex roots $re^{\abs{\theta}}$, the formant frequency associated to it is given by:
+In the Linear Prediction of Speech framework, the formants of a signal are the resonances of the vocal tract, i.e. the frequencies associated with the poles of the system function $H(z)$ \cite{Snell1993}. In other words, given a pair of complex roots $re^{\pm\theta}$, the formant frequency associated to it is given by:
 \begin{align*}
 F = \frac{f_s}{2\pi}\theta \text{Hz}
 \end{align*}
 \end{definition}
-\par where $f_s$ is the sampling frequency of the signal. 
+where $f_s$ is the sampling frequency of the signal. 
 \par Formants can be visualised as the peaks of the frequency response of the LTI system, as depicted in figure \ref{fig_fmnts_lpc}. In this plot, we can also observe the 3-dB bandwidth of each formant. 
 \begin{definition}{3-dB bandwidth.}\label{def_bandwidth}
-The 3-dB bandwidth of a formant is defined as the length of the interval the spectral envelope occupies 3-dB below the peak associated to the chosen formant. Given a pair of complex roots $re^{\abs{\theta}}$, the bandwidth associated to it is:
+The 3-dB bandwidth of a formant is defined as the length of the interval the spectral envelope occupies 3-dB below the peak associated to the chosen formant. Given a pair of complex roots $re^{\pm\theta}$, the bandwidth associated to it is:
 \begin{align*}
 B = -\frac{f_s}{2\pi}\log{r} \text{Hz}
 \end{align*}
@@ -273,7 +272,7 @@ B = -\frac{f_s}{2\pi}\log{r} \text{Hz}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{formants_envelope}
-\caption{Given an LTI system, its formants are the peaks of its spectral envelope. The bandwidth associated to each formant are depicted as red boxes next to each peak.}
+\caption{Given an LTI system, its formants are the peaks of its spectral envelope. The bandwidths associated to each formant are depicted as red boxes next to each peak.}
 \label{fig_fmnts_lpc}
 \end{figure}
 \par This definition suggests that a narrower bandwidth implies a ``peakier" formant, i.e. a particular frequency that contains more energy in a shorter interval. This implies that more characteristic formants are those with narrower bandwidths.
@@ -281,13 +280,13 @@ B = -\frac{f_s}{2\pi}\log{r} \text{Hz}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{formants}
-\caption{Formant trajectories are the white bars that can be spotted on spectrograms. }
+\caption{Depiction of the first formant trajectories (blue) on top of a birdsong recording.}
 \label{fig_specformants}
 \end{figure}
 
 
 \section{Conclusion} \label{section_form_estimation}
-To wrap up, in this section we presented the Linear Prediction of Speech framework, its relationship with birdsong production and the required DSP techniques. As discussed, formants can prove to be useful features due to its close relationship with human speech vowels. However, some issues still remain, particularly: is formant trajectory extraction sufficient to fully characterise each bird species? How are trajectories of different length to be handled? How about stretched or shifted versions of the same kind of birdsong? 
+To conclude, in this section we presented the Linear Prediction of Speech framework, its relationship with birdsong production and the required DSP techniques. As discussed, formants can prove to be useful features due to its close relationship with human speech vowels. However, some issues still remain, particularly: is formant trajectory extraction sufficient to fully characterise each bird species? How are trajectories of different length to be handled? How about stretched or shifted versions of the same kind of birdsong? 
 \par These factors justify going one step ahead from here and try to characterise the formant trajectories of bird species into objects that are comparable and invariant to the transformations mentioned above. In consequence, methods to further characterise the extracted formant trajectories will be presented in chapter \ref{chapter_hmms}. 
     
 
