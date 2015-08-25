@@ -263,9 +263,9 @@ where $\phi_{p, i}, \phi_{q, i}$ are the Dirichlet distributions associated to t
 \item Triangle inequality. $D_{\text{Trans}(\lambda_p, \lambda_r)} = \sum_{i=1}^K d(\psi_{p, i}, \psi_{r, i}) \leq \sum_{i=1}^K d(\psi_{p, i}, \psi_{q, i}) + d(\psi_{q, i}, \psi_{r, i}) = D_{\text{Trans}}(\lambda_p, \lambda_q) + D_{\text{Trans}(\lambda_q, \lambda_r)}$
 \end{itemize}
 \par Nevertheless, one could still argue that a VB would have some states that are seldom used would have a negative impact to obtain a faithful computation of similarity: if two states $q_i \in Q_p, q_j \in Q_q$ are very rarely used, then their similarity is not as relevant as the rest of the states in $Q_p, Q_q$. To address this issue, we introduce a weighted metric:
-\begin{align*}
+\begin{equation} \label{eq:hmmdist}
 D_{\text{Trans}}(\lambda_p, \lambda_q) = \sum_{i=1}^K \frac{\Omega_{lambda_p}(i) + \Omega_{\lambda_q}(i)}{2} d(\psi_{p, i}, \psi_{q, i})
-\end{align*}
+\end{equation}
 that weights the contribution of each pair of states according to its averaged occupancy.
 \par In conclusion, this section addressed the issues of computing the similarity between probability distributions and between HMMs. Whereas this task has been widely studied for the former, the same cannot be said for the latter. Proposing a similarity metric between HMMs, and finding an optimal way to combine the similarity of each pair of parameters into a single scalar is still an open problem. To this end, we proposed two metrics: one that calculates the distance between the emission models of the HMMs, and one that computes the similarity between the transition models. The results of both of these metrics are compared and contrasted in chapter \ref{chapter_results}.
 
@@ -312,5 +312,5 @@ p = \frac{\sum_{i < i'}(d_{i, i'} - \bar{d})(c_{i, i'} - \bar{c})}{\sqrt{\sum_{i
 \par The cophenetic correlation coefficient can then be used to determine what linkage technique is most faithful to the original distance matrix.
 
 \section{Conclusion}
-In this chapter, we finished filling in the gaps of the general pipeline proposed in section \ref{general_pipeline}. In particular, we introduced statistical models that summarise data, and motivated their use by emphasising how they study formant trajectories as symbols, rather than vectors of varying length. This summarisation proves particularly useful in order to characterise the content and shape of formant trajectories. Moreover, we also discussed several similarity metrics between statistical models and their issues. Finally, we offered a deeper presentation of hierarchical agglomerative clustering, an algorithm that produces arborescent relational structures from data. We will put all these techniques together in chapter \ref{chapter_account} by giving details and addressing issues on their implementation.
+In this chapter, we finished filling in the gaps of the general pipeline proposed in section \ref{general_pipeline}. In particular, we introduced statistical models that summarise data, and motivated their use by emphasising how they analyse formant trajectories as symbols, rather than vectors of varying length. This summarisation proves particularly useful in order to characterise the content and shape of formant trajectories. Moreover, we also discussed several similarity metrics between statistical models and their challenges. Finally, we offered a deeper presentation of hierarchical agglomerative clustering, an algorithm that produces arborescent relational structures from data. We will put all of these techniques together in chapter \ref{chapter_account} by giving details and addressing issues on their implementation.
 \end{document}
