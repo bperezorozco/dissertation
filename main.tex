@@ -61,6 +61,7 @@
 \renewcommand{\qed}{\hfill\blacksquare}
 \renewcommand{\baselinestretch}{1.3}
 
+
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 
 \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black]
@@ -106,7 +107,13 @@
 
 \subfile{chapters/ch7.tex}
 
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{unsrt}
+\bibliography{bib}
+
+
 \appendix
+
 \chapter{Metrics review}
 
 \subfile{chapters/app2.tex}
@@ -119,7 +126,6 @@
 
 \subfile{chapters/app1.tex}
 
-\bibliographystyle{unsrt}
-\bibliography{bib}
+
 
 \end{document}

@@ -1,10 +1,10 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document} \label{chapter_formants}
-\par In this chapter, we give an in-depth review of formant trajectory extraction. As reviewed in section \ref{birdsong_review}, birdsong can be compared to human vowels in structure. Moreover, in subsection \ref{subsection_fmnts} we learned that formants can be useful to characterise human vowels.  
+\par In this chapter, we give an in-depth review of formant trajectory extraction. As reviewed in section \ref{birdsong_review}, birdsong can be compared to human vowels in structure. Moreover, in subsection \ref{subsection_fmnts} we learnt that formant trajectories can characterise birdsong recordings.  
 \par Therefore, we dedicate this chapter to the study of formants, and we do so two-fold: in section \ref{section_dsp}, we present all the tools from Signal Processing required to introduce the concept of formants, and more generally, the Linear Predictive Coding framework, which is introduced in section \ref{section_lpc}. This enables us to give a thorough description of what formants mean, and how to compute them.
 
 \section{Signal analysis review} \label{section_dsp}
-In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be useful to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models, the autocorrelation function, the Yule-Walker equations, which are useful to set out the parameters of an autoregresive model in terms of the autocorrelation. Next, we present the Levinson-Durbin recursion, which is a technique used to solve these last equations. Finally, we introduce signal preprocessing techniques which will contribute to the system architecture presented in section \ref{section_form_estimation}. 
+In this section, we give an overview of key concepts from Digital Signal Processing (DSP) that will be relevant to give a deeper presentation of formants in section \ref{section_lpc}. We first introduce LTI systems and their representation in both, the time and frequency domains. Then, we present autoregressive models, the autocorrelation function, the Yule-Walker equations, which allow us to set out the parameters of an autoregresive model in terms of the autocorrelation. Next, we present the Levinson-Durbin recursion, which is a technique used to solve these last equations. Finally, we introduce signal preprocessing techniques which will contribute to the system architecture presented in section \ref{section_form_estimation}. 
 
 \subsection{LTI systems in the time and frequency domains} \label{subsection_lti} 
 A discrete-time system's (DTS) definition is very closely linked to that of a discrete function. Any such system contains two sequences, an input sequence $\V{x} = (x_1, x_2, ..., x_n)$ and an output sequence $\V{y} = (y_1, y_2, ..., y_n)$, which are related by a transformation $T$, i.e. $\V{y} = T\{\V{x}\}$.  \cite{Oppenheim2010}. 
@@ -47,7 +47,7 @@ where $\V{y} = (y_1, y_2, ..., y_n, ..., y_N)$ and
 \implies y_n &= \sum_{k=-\infty}^{\infty}x_kh_{n-k}, \forall n
 \end{align*}
 \end{definition}
-\par Time signals are often analysed in the frequency domain because this unveils the contribution of different frequency components, which can be useful to distinguish information about the signal. In subsection \ref{subsection_fft}, we defined the the Fourier Transform $X = \mathcal{F}\{\V{x}\}$ for discrete signals. We recall that the Fourier Transform is a useful tool to compute the frequency-domain representation of a time signal. We now present some important results about it.
+\par Time signals are often analysed in the frequency domain because this unveils the contribution of different frequency components, hence providing insight about the information contained in signal. In subsection \ref{subsection_fft}, we defined the the Fourier Transform $X = \mathcal{F}\{\V{x}\}$ for discrete signals. We recall that the Fourier Transform computes the frequency-domain representation of a time signal. We now present some important results about it.
 \begin{theorem}{The Convolution Theorem.} \label{theo_conv}
 Let $\V{x, y}$ be time-domain signals and let $\V{h}$ be the impulse response of an LTI system, with $\V{y} = \V{x}\Conv\V{h}$. Then, their respective Fourier Transforms $X, H, Y$ satisfy:
 \begin{align*}
@@ -62,14 +62,14 @@ E &= \sum_{k=-\infty}^{\infty}\abs{x_n}^2\\
 &= \frac{1}{2\pi}\int_{-\pi}^\pi{\abs{X(e^{j\omega})}^2d\omega}
 \end{align*}
 \end{theorem}
-\par One useful way of representing signals is by plotting how much power is contained at each given frequency. This is called a \emph{frequency spectrum}. However, this representation is often used to generate yet another representation, called the \emph{spectral envelope} of the signal, which is a smoothed version of the frequency spectrum. Figure \ref{fig_specenv} shows how these two representations are related.
+\par One convenient way of representing signals is by plotting how much power is contained at each given frequency. This is called a \emph{frequency spectrum}. However, this representation is often used to generate yet another representation, called the \emph{spectral envelope} of the signal, which is a smoothed version of the frequency spectrum. Figure \ref{fig_specenv} shows how these two representations are related.
 \begin{figure}[t]
 \centering
 \includegraphics[width=80mm]{specenv}
 \caption{The frequency spectrum and its smoothed representation, the spectral envelope (bold line).}
 \label{fig_specenv}
 \end{figure}
-\par Additionally, it is often convenient to analyse how the frequency content changes over time, particularly so when analysing phenomena such as birdsong or human speech, in which signals can only be represented as LTI systems at a specific point in time. The \emph{spectrogram} of a signal is a representation displaying the energy distribution over frequency bins at each point in time that is useful in this scenario. An example of this can be seen in figure \ref{fig_spec}.
+\par Additionally, it is often convenient to analyse how the frequency content changes over time, particularly so when analysing phenomena such as birdsong or human speech, in which signals can only be represented as LTI systems at a specific point in time. The \emph{spectrogram} of a signal is a representation displaying the energy distribution over frequency bins at each point in time, as can be seen in figure \ref{fig_spec}.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{spec}
@@ -83,7 +83,7 @@ Given a discrete-time signal $\V{x}$, its z-transform, denoted by $\mathcal{Z}\{
 X(z) = \mathcal{Z}\{\V{x}\} = \sum_{n=0}^\infty{x_nz^{-n}}
 \end{align*}
 \end{definition}
-\par A property that will prove useful later on is called the time shifting property:
+\par A property that is relevant to give a formal treatment of the Linear Prediction of Speech framework in the next section is called the time shifting property:
 \begin{definition}{Time-shifting.} \label{def_timeshitfing}
 Given a signal $\V{x}$, with z-transform $X(z)$, and a time shift-version $\V{x}'$, where $x_n = x'_{n-k}$, the z-transform of $\V{x}'$ is given by:
 \begin{align*}
@@ -92,13 +92,13 @@ X'(z) = \mathcal{Z}\{\V{x}'\} = z^{-k}X(z)
 \end{definition}
 \par Similar to the Fourer transform, the z-transform also satisfies the convolution property. In particular, given an LTI system $y_n = \sum_{-\infty}^\infty{x_kh_{n-k}}$, applying the z-transform on both sides yields $Y(z) = H(z)X(z)$, where $H(z)$ is called the \emph{system function}.
 \subsection{Autoregressive models and the autocorrelation function} \label{subsection_autoregression}
-In this section, we describe useful statistical tools to analyse signals over time. This presentation follows closely the concepts shown in \cite{Roberts2014}, and the reader is referred to it for further details. An \emph{autoregressive model} is one that assumes that an element $x_t$ of a time series is a linear combination of previous samples, added to a random component that is assumed to be Gaussian. Autoregressive models are defined in \cite{Johnston} as follows:
+In this section, we describe statistical tools to analyse signals over time. This presentation follows closely the concepts shown in \cite{Roberts2014}, and the reader is referred to it for further details. An \emph{autoregressive model} is one that assumes that an element $x_t$ of a time series is a linear combination of previous samples, added to a random component that is assumed to be Gaussian. Autoregressive models are defined in \cite{Johnston} as follows:
 \begin{definition}{p-th order Autoregressive Model.} \label{def_ar}
 The \emph{p-th} order autoregressive time series (often written AR($p$)) $X_k$ is given by the following equations:
 \begin{align*}
 \sum_{i=1}^p{\rho_iX_{k-i}} = \epsilon_k
 \end{align*}
-with $\rho_0 \neq 0, \rho_p \neq 0$ and each $\epsilon_k$ is assumed to be uncorrelated and sampled from $\mathcal{N}(0, \sigma^2)$.
+with $\rho_1 \neq 0, \rho_p \neq 0$ and each $\epsilon_k$ is assumed to be uncorrelated and sampled from $\mathcal{N}(0, \sigma^2)$.
 \end{definition}
 \par In other words, at time $t$, $x_t$ is a linear combination of the $p$ previous samples, plus Gaussian noise. Notice that we can write these equations in vector form. For example, for $p=3$:
 \begin{align*}
@@ -107,7 +107,7 @@ with $\rho_0 \neq 0, \rho_p \neq 0$ and each $\epsilon_k$ is assumed to be uncor
 \V{x} &= \V{Ma} + \V{e}
 \end{align*}
 \par We can approximate $\V{a}$ by solving the last equation: $\hat{\V{a}} = (\V{M}^T\V{M})^{-1}\V{M}^T\V{X}$. Then we can approximate $\V{x}$ by letting $\hat{\V{x}} = \V{Ma}$ and then having $\V{e} = \V{x} - \hat{\V{x}}$. 
-\par Another useful tool to analyse $\V{x}$ is the autocovariance, which measures how much two samples $x_t, x_{t-T}$ of the same signal change together. 
+\par Another relevant tool to analyse $\V{x}$ is the autocovariance, which measures how much two samples $x_t, x_{t-T}$ of the same signal change together. 
 \begin{definition}{Autocovariance and autocorrelation.} \label{def_autocov}
 The autocovariance with lag $T$ of a signal $\V{x}$ with mean $\mu_x$ is given by:
 \begin{align*}
@@ -130,15 +130,15 @@ x_tx_{t-k} = a_1x_{t-1}x_{t-k} + a_2x_{t-2}x_{t-k} + ... + a_px_{t-p}x_{t-k} + e
 \begin{align*}
 r_{xx}(k) = a_1r_{xx}(k-1) + a_2r_{xx}(k-2) + ... + a_pr_{xx}(k-p)
 \end{align*}
-\par For an AR($p$) model, and using the symmetry of the autocorrelation function, the relatin above can be written in matrix form:
+\par For an AR($p$) model, and using the symmetry of the autocorrelation function, the relation above can be written in matrix form:
 \begin{align*}
 \left[ \begin{array}{c} r_{xx}(1) \\ r_{xx}(2) \\ r_{xx}(3) \\ .. \\ r_{xx}(p)  \end{array} \right] &= \begin{bmatrix} r_{xx}(0) & r_{xx}(1) & r_{xx}(2) & .. & r_{xx}(p-1) \\ r_{xx}(1) & r_{xx}(0) & r_{xx}(1) & .. & r_{xx}(p-2) \\ .. & .. & .. & ..  & .. \\ r_{xx}(p-1) & r_{xx}(p-2) & r_{xx}(p-3) & .. & r_{xx}(0) \end{bmatrix} \left[ \begin{array}{c} a_1 \\ a_2 \\ a_3 \\ .. \\ a_p \end{array} \right]
 \end{align*}
-\par Or, more succintly:
+\par Or, more succinctly:
 \begin{align*}
 \V{r} &= \V{Ra}
 \end{align*}
-\par This implies that the AR($p$) model coefficients for a signal $\V{x}$ can be found given its autocorrelation matrix, i.e. $\hat{\V{a}} = \V{R}^{-1}\V{r}$. This is particularly useful if we remark that $\V{R}$ is a Toeplitz matrix, i.e. its diagonals all contain the same elements, since it makes this system more efficiently solvable by means of the Levinson-Durbin recursion algorithm, which is described in subsection \ref{subsection_levinson}.
+\par This implies that the AR($p$) model coefficients for a signal $\V{x}$ can be found given its autocorrelation matrix, i.e. $\hat{\V{a}} = \V{R}^{-1}\V{r}$. Furthermore, note that $\V{R}$ is a Toeplitz matrix, i.e. its diagonals all contain the same elements. This kind of linear system of equations can be solved efficiently by means of an algorithm called the Levinson-Durbin recursion, which is described in subsection \ref{subsection_levinson}.
 \par To finish this section, we present an interesting theorem that relates the Fourier Transform and the autocorrelation \cite{Weisstein2015c}. First, we introduce the autocorrelation $f\star f$ of a continuous function $f$ is defined as:
 \begin{align*}
 f \star f = \int_{-\infty}^\infty{\bar{f}(t)f(\tau + t)d\tau}
@@ -198,7 +198,7 @@ a_1 &= \frac{r_{xx}(1)}{r_{xx}(0)}\\
 \par The original Levinson recursion solves the system of equations in $\mathcal{O}(n^2)$ operations, however more recent versions are able to solve it in $\mathcal{O}(n\log{n})$.
 
 \subsection{Signal preprocessing} \label{subsection_preproc}
-In this subsection, we describe procedures that are frequently used to preprocess signals to be analysed. In particular, we present the concepts of framing, windowing, pre-emphasis and feature scaling, all of which are useful (and often necessary) to apply the techniques discussed previously. The goal of preprocessing is to enhance the signal's features so as to make signal analysis easier and more accurate in later stages.
+In this subsection, we describe procedures that are frequently used to preprocess signals to be analysed. In particular, we present the concepts of framing, windowing, pre-emphasis and feature scaling, all of which are often necessary to apply the techniques discussed previously. The goal of preprocessing is to enhance the signal's features so as to make signal analysis easier and more accurate in later stages.
 \par The first preprocessing technique we discuss is pre-emphasis. This technique aims at ``compensating the high-frequency part that was suppressed during the sound production mechanism of humans" \cite{Jang1996}, and consists in applying a highpass filter to the original signal. A filter that is commonly applied in the literature corresponds to an AR(1) model: $x'_n = x_n - \alpha x_{n-1}, 0.95< \alpha < 0.99 $ \cite{Shimodaira2013}. This results in a signal that sounds sharper and at a lower volume than the original \cite{Jang1996}. 
 \par Furthermore, as will be discussed in section \ref{section_lpc}, time signals are analysed in short intervals. The procedure of partitioning the signal into smaller sections is called segmentation, and the length of each segment is often given in milliseconds (ms). A discrete signal is always recorded along its sampling frequency $f_s$, which is the number of times per second a signal from the real world was sampled. Recurrent sampling frequencies include 22.5, 44.1 and 48 kHz. A concept associated to this is the Nyquist frequency $f_{\text{Nyquist}}$, which is the ``highest frequency that can be coded at a given sampling rate in order to fully reconstruct the signal" \cite{Weisstein2015b}, and is given by half of the sampling frequency.
 \par Once the length $l$ in seconds of each segment has been specified, we can calculate how many samples they contain by:
@@ -238,7 +238,7 @@ e_n = s_n - \hat{s}_n = s_n - \sum_{i=1}^pa_is_{n-i}
 \par Then, the error $\V{e}$ can also be seen as the output of an LTI system whose filter subtracts the best approximation $\hat{\V{s}}$ from $\V{s}$ \cite{Bello}. The system function can be found by taking the z-transform (and taking advantage of the time-shifting property) of the equation above:
 \begin{align*}
 \mathcal{Z}\{\V{e}\} &= \mathcal{Z}\{\V{s} - \hat{\V{s}}\}\\
-E(z) &= \mathcal{Z}\{\V{s}\} - \mathcal{Z}\{ (\sum_{i=1}^pa_ix_{n-i})_n\} \\
+E(z) &= \mathcal{Z}\{\V{s}\} - \mathcal{Z}\left\{ \left(\sum_{i=1}^pa_ix_{n-i}\right)_n\right\} \\
  &= S(z) - S(z)\sum_{i=1}^pa_iz^{-i}\\
  &= S(z)(1 - P(z))\\
  &= S(z)A(z) 
@@ -254,7 +254,7 @@ H(z) = \frac{1}{A(z)} = \frac{1}{1-\sum_{i=1}^pa_iz^{-i}}
 \begin{align*}
 H(z) = \frac{1}{1 - \sum_{i=1}^pa_iz^{-i}} = \frac{1}{A(z)}
 \end{align*}
-We are now ready to present formants:
+Recall that, given a signal $\V{x}$, we can find its linear prediction coefficients $\V{a}$ by using the Levinson-Durbin recursion to solve the associated linear system of equations $\V{r} = \V{Ra}$, where $\V{r}$ is the autocorrelation vector and $\V{R}$ is the (Toeplitz) autocorrelation matrix. We are now ready to present formants:
 \begin{definition}{Formants.} \label{def_formants}
 In the Linear Prediction of Speech framework, the formants of a signal are the resonances of the vocal tract, i.e. the frequencies associated with the poles of the system function $H(z)$ \cite{Snell1993}. In other words, given a pair of complex roots $re^{\pm\theta}$, the formant frequency associated to it is given by:
 \begin{align*}
@@ -286,8 +286,8 @@ B = -\frac{f_s}{2\pi}\log{r} \text{Hz}
 
 
 \section{Conclusion} \label{section_form_estimation}
-To conclude, in this section we presented the Linear Prediction of Speech framework, its relationship with birdsong production and the required DSP techniques. As discussed, formants can prove to be useful features due to its close relationship with human speech vowels. However, some issues still remain, particularly: is formant trajectory extraction sufficient to fully characterise each bird species? How are trajectories of different length to be handled? How about stretched or shifted versions of the same kind of birdsong? 
-\par These factors justify going one step ahead from here and try to characterise the formant trajectories of bird species into objects that are comparable and invariant to the transformations mentioned above. In consequence, methods to further characterise the extracted formant trajectories will be presented in chapter \ref{chapter_hmms}. 
+To conclude, in this section we presented the Linear Prediction of Speech framework and its relationship with birdsong production. To do so, we reviewed key concepts from the Digital Signal Processing literature. Formant trajectories were shown to characterise birdsong recordings when applied to a system that follows the source-filter model of speech production, like birdsong does. However, some issues still remain, particularly: is formant trajectory sufficient to fully characterise each bird species? How are trajectories of different length to be handled? How about stretched or shifted versions of the same motifs? 
+\par This motivates the search for a more abstract model that encourages the learning of formant trajectories as symbols invariant to relatively small perturbations. These models should summarise the content and the sequence of the trajectories. As a result, methods to achieve this are presented in chapter \ref{chapter_hmms}. 
     
 
 \end{document}
