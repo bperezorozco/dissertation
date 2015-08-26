@@ -1,0 +1,41 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document} \label{subsection_dirwish}
+In this appendix, we introduce two probability distributions relevant in the Variational Bayes approaches described in subsection \ref{subsection_model}: the Dirichlet and the Wishart distributions. 
+\par The Dirichlet distribution is a multivariate generalisation of the Beta distribution, and is only defined over the probability simplex \cite{Murphy2012}, given by:
+\begin{align*}
+S_K = \left\{\V{x} : 0 \leq x_k \leq 1, \sum_{k=1}^Kx_k = 1\right\}
+\end{align*}
+Its density function is given by:
+\begin{equation} \label{eq:dirichlet}
+\text{Dir}(\V{x} \given \V{\alpha}) = \frac{1}{B(\V{\alpha})} \prod_{k=1}^Kx_k^{\alpha_k-1}\mathbb{I}(\V{x}\in S_K)
+\end{equation}
+Where $B(\V{\alpha})$ is the normalisation constant, given by:
+\begin{equation}
+B(\V{\alpha}) = \frac{\Pi_{k=1}^K\Gamma(\alpha_k)}{\Gamma(\sum_{k=1}^K\alpha_k)}
+\end{equation}
+And $\Gamma(t)$ is the Gamma function, defined as:
+\begin{equation}\label{eq:gamma}
+\Gamma(t) = \int_0^\infty x^{t-1}e^{-x}dt
+\end{equation}
+Remark that the probability simplex is a set of tuples that form a Categorical distribution with $K$ possible outcomes. Additionally, these tuples can also be seen as the parameters of a Multinomial distribution. In other words, the Dirichlet can be seen as a distribution over the Categorical and Multinomial distributions.
+\par The second distribution we discuss in this subsection is the Wishart distribution. It is a generalisation of the Gamma distribution to positive-definite matrices. 
+\begin{definition}{Positive-definite matrix.} \label{def_pdmatrix}
+A symmetric matrix $A \in \mathbb{R}^{n\times n}$ is said to be positive-definite if for all vectors $\V{z} \in \mathbb{R}^n$ the following holds:
+\begin{align*}
+\V{z}A\V{z}^T > 0
+\end{align*}
+\end{definition}
+\par The Wishart distribution is often used to model uncertainty of covariance matrices $\Sigma$ and their inverses, precision matrices $\Lambda = \Sigma^{-1}$ \cite{Murphy2012}. Its probability density is given by:
+\begin{align*}
+\text{Wi}(\Lambda \given S, \upsilon) = \frac{1}{Z_{\text{Wi}}} \abs{\Lambda}^{(\upsilon -D -1)/2}\exp{\bigg(-\frac{1}{2}\text{tr}(\Lambda S^{-1})\bigg)}
+\end{align*}
+Where $\upsilon$ is called the \emph{degrees of freedom}, $S$ is called the scale matrix, tr$(A)$ denotes the trace of matrix $A$, and $Z_{\text{Wi}}$ is the normalisation constant given by:
+\begin{align*}
+Z_{\text{Wi}} &= 2^{\upsilon D / 2}\Gamma_D(\upsilon/2)\abs{S}^{\upsilon/2}
+\end{align*}
+For $\upsilon > D-1$, and $\Gamma_D(x)$ is the $D$-dimensional multivariate Gamma function, defined as:
+\begin{align*}
+\Gamma_D(x) = \pi^{D(D-1)/4}\prod_{i=1}^D\Gamma(x+(i-1)/2)
+\end{align*}
+There is an interesting relationship between the Wishart and the multivariate normal distribution \cite{Nydick2012}. Let $\V{x}_1, \V{x}_2, ..., \V{x}_N$ be $p$-dimensional samples with $\V{x}_i \sim \mathcal{N}(0, \Sigma)$. Furthermore, let $X \in \mathbb{R}^{n \times p}$ be the matrix obtained by stacking the elements $\V{x}_i$ as rows. Then, $S = X^TX \sim \text{Wi}_p(\Sigma, n)$. 
+\end{document}
