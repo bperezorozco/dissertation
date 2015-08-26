@@ -5,6 +5,7 @@ In this chapter, we are provide an overview of the methods to build relational s
 \par Secondly, we are concerned with the goals and components of the target relational structure, i.e. the entities and relationships the authors modelled. Discovering acoustic links between pairs of bird species is different from segmenting vowel sounds in human speech, for example. Although these differences are reflected in different pipelines, understanding them is key in order to produce a pipeline that will yield better results for our work.
 \par However, limiting ourselves to works focusing exclusively on this task might be too restrictive: results from bird classification, clustering and detection could also prove useful for our project. For example, feature extraction is common to all tasks, and state-of-the-art feature extraction is mandatory in order to achieve better results. Therefore, whenever relevant, works related to these tasks will also be cited in this review.
 \par This chapter is presented as follows: firstly, a general overview of pipelines for building relational structures is given; afterwards, we present a review of feature extraction methods used in acoustic signals; algorithms for building relational structures are reviewed next; finally, a discussion on how the referenced methods are relevant a working pipeline for our scenario is presented.
+\par The final product of this chapter is a pipeline to build relational structures, but also informed choices on how to perform each of its stages. For this reason, we explore several methods for each stage and aim to present the advantages and disadvantages of each of them. This enables us to choose a method for each stage of the pipeline, and each of these decisions will be further explored in the next chapters \ref{chapter_formants} and \ref{chapter_hmms}.
 
 \section{Relational structures and pipelines}\label{general_pipeline}
 A relational structure is one that shows links between objects. In this work, we will assume these links to be a binary relations $R$ over a single set $X$, i.e. $R \subseteq X \times X$. One way of representing such relations is a square matrix $A$, called adjacency matrix, such that $A \in \mathbb{R}^{n \times n}$, where $n =\left\vert{X}\right\vert$.
@@ -139,7 +140,7 @@ X_{k+N/2} = F^e_k - W^kF^o_k
 \par Having discussed the transformation of signals in the time domain into signals in the frequency domain, we are now prepared to set forth different methods of feature extraction. In particular, we are interested to compute \emph{descriptive} features, i.e. to reduce the dimensionality of the original data as much as possible while minimising the amount of information lost in the process \cite{hastie2008}. Additionally, features enable us to accelerate training procedures (by reducing the amount of data to process) and to encourage generalisation (by ``making it easier" to see patterns in data).
 
 \subsection{Mel Frequency Cepstral Coefficients (MFCC)} \label{subsection_mfcc}
-\par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a frame (a portion of a signal) by analysing its Mel-frequency \emph{cepstrum}. This is done for as many overlapping frames of equal length (around 20-50 milliseconds) that can be extracted from the original signal. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies.
+\par This technique is one of the most widely used in human speech recognition \cite{Jurafsky2009}, \cite{Chou2008a}, \cite{Stowell2014}. It consists in representing the spectral envelope of a frame (a portion of a signal) by analysing its Mel-frequency \emph{cepstrum}. This is done for as many overlapping frames of equal length (around 20-50 milliseconds) that can be extracted from the original signal. The Mel scale is a frequency scale created to simulate how the human ear perceives sounds \cite{Sludge2000}. Its main premise is that human ear perception of pitch is linear below 1 kHz and logarithmic above. In other words, from 1 kHz, the same amount of energy is distributed along longer ranges of frequencies. This results in the human ear having a poorer performance distinguishing very high frequencies. Moreover, MFCC are pitch-invariance. This key advantage has positioned them as one of the preferred audio feature extraction techniques.
 \par Hertz can be mapped to Mels by the following transformation \cite{Lyons2014}:
 \begin{align*}
 F_{\text{mel}} = 1125 \log{(1 + \frac{F_{Hz}}{700})}
@@ -166,8 +167,7 @@ The cepstrum $\V{c}$ of a discrete time signal $\V{x}$ is defined as the Inverse
 \label{mel_energy}
 \end{figure}
 
-\par Then, we continue with the steps described in definition \ref{def_cepstrum}. The result is called Mel-cepstrum and the MFCC are the first $k$ elements of the result. In practice, normally 13 coefficients are taken after using between 20 and 40 triangular filters \cite{Gutierrez-Osuna2009}. However, more recent research has shown that computers now have enough resources to use the full Mel spectrum, rather than just taking the first coefficients \cite{Stowell2014}. Furthermore, MFCC tend to be enhanced with the so-called \emph{delta features}, which represent the rate of change of the MFCC sequence over time \cite{Muda2010} \cite{Lyons2014}. 
-\par Similarly, \emph{double delta features} (or acceleration) can be computed by taking the delta features of the delta sequence. 
+\par Then, we continue with the steps described in definition \ref{def_cepstrum}. The result is called Mel-cepstrum and the MFCC are the first $k$ elements of the result. In practice, normally 13 coefficients are taken after using between 20 and 40 triangular filters \cite{Gutierrez-Osuna2009}. However, more recent research has shown that computers now have enough resources to use the full Mel spectrum, rather than just taking the first coefficients \cite{Stowell2014}. Furthermore, MFCC tend to be enhanced with the so-called \emph{delta features}, which represent the rate of change of the MFCC sequence over time \cite{Muda2010} \cite{Lyons2014}. Similarly, \emph{double delta features} (or acceleration) can be computed by taking the delta features of the delta sequence. 
 \par In \cite{Stowell2014}, an analysis of the performance of both, raw Mel spectra and MFCC is presented and compared against other feature extraction procedures when used to characterise birdsong. The conclusion is that, although standard for human speech, there is no proof that this should be the standardised feature extractor for birdsong. The authors present unsupervised feature learning as an alternative that could be more accurate, but call for further benchmarking to be done before coming to an absolute conclusion.
 
 \subsection{Spherical k-means} \label{subsection_spherical}
@@ -179,7 +179,7 @@ d(\V{x}, \V{y}) &= 1 - \cos{(\theta_{\V{x}, \V{y}})}\\
 &= 1 - \frac{\V{x} \cdot \V{y}}{\norm{\V{x}}\norm{\V{y}}}
 \end{align*}
 \end{definition}
-\par Moreover, each centroid is normalised at every iteration of the algorithm. The result is a normalised spanning set that displays the directions of greater concentration of data, as depicted in figure \ref{fig_spherical}.
+\par Moreover, each centroid is normalised at every iteration of the algorithm. The result is a normalised spanning set that displays the directions of greater concentration of data, as depicted in figure \ref{fig_spherical}. Normalising this spanning set is important in order to guarantee amplitude-invariance of the features. The intuition behind spherical k-means is that we project the feature vectors onto the unit sphere, and then calculate the Euclidean dissimilarity between them, hence diminishing the over-representation of high-dimensional data when calculating the Euclidean distance \cite{Hornik2012}. This projection is equivalent to finding the cosine distance between vectors. 
 
 \begin{figure}[t]
 \centering
@@ -250,13 +250,7 @@ Independent Component Analysis (ICA) is a feature extraction method that assumes
 \par One more approach, presented in \cite{Jang2001}, includes using the basis columns of the matrix $\V{A}$ as features for a signal $\V{x}$ and then metric their similarity with those from another signal $\V{y}$. Finally, other works focus on deriving adaptations of the ICA algorithm that better suit differently conditioned problems. For example, in some scenarios, assuming that sources are mixed linearly cannot be justified or accepted at all. Works such as \cite{Almeida2003, Omar} have proposed alternatives for these cases.
 
 \subsection{Linear Predictive Coding and Formant Frequencies} \label{subsection_formants}
-Sufficiently small portions of speech utterances $\V{x}$ can be seen as a Linear Time-invariant (LTI) system in which a flat spectrum is produced by the glottis in a human body and then reshaped by a linear filter, the throat as explained by the source-filter model of human speech \cite{Bello}. Moreover, remark that any LTI system is uniquely characterised by its impulse response function, or equivalently in the frequency domain, by its frequency response\cite{markel1976}. Therefore, ways of extracting features from this function can prove useful to characterise speech utterances. One such way is to take the peaks of this function. This technique is called formant extraction, and can be mapped visually to the thick bars that appear in spectrogram representations of signals.
-\begin{figure}[t]
-\centering
-\includegraphics[width=90mm]{formants}
-\caption{Formant trajectories are the white, semi-horizontal bars distinguishable from the spectrogram representation of an acoustic signal.}
-\label{fig_formants}
-\end{figure}
+Sufficiently small portions of speech utterances $\V{x}$ can be seen as a Linear Time-invariant (LTI) system in which a flat spectrum is produced by the glottis in a human body and then reshaped by a linear filter, the vocal tract, as explained by the source-filter model of human speech \cite{Bello}. Let us recall that any LTI system is uniquely characterised by its impulse response function, or equivalently in the frequency domain, by its frequency response\cite{markel1976}. Thus, characterising the frequency response of the system also characterises the system itself. Formant extraction consists in finding the resonances of the vocal tract of short (20-40 ms) speech utterances - a longer speech utterance can be segmented into smaller signals whose formants form a trajectory.
 \par Now, assume that the signal can be approximated using a Linear Predictive Coding approach of $p$-th order, i.e. $\hat{\V{x}} = \sum_{k=1}^pa_k\V{x}_{t-k}$. Then, the error at each time $\V{e}_t$ between the original signal and a $p$-th order approximation is given by: 
 \begin{align*}
 \V{e} = \V{x} - \hat{\V{x}} = \V{x} - \sum_{k=1}^p{a_k \V{x}_{t-k}}
@@ -268,108 +262,30 @@ E(z) &= X(z)(1-\sum_{k=1}^p{a_k z^{-k}})\\
 E(z) &= X(z)A(z)\\
 \implies X(z) &= \frac{E(z)}{A(z)}
 \end{align*}
-\par Remark that $A(z)$ is still specified by the LPC coefficients, and thus $X(z)$, a frequency domain representation of the time signal $\V{x}$, now depends directly on the LPC coefficients \cite{Hosom2006}. The poles of the above function come in complex pairs, and are given by the roots $z_i = r_ie^{\theta_i}$ of $A(z)$. The formants in Hertz and their corresponding 3-dB bandwidth are given by \cite{Snell1993,Mathworks2015}:
+\par Remark that $A(z)$ is still specified by the LPC coefficients, and thus $X(z)$, a frequency domain representation of the time signal $\V{x}$, now depends directly on the LPC coefficients \cite{Hosom2006}. The poles of the above function come in complex pairs, and are given by the roots $z_i = r_i\exp{\{\pm\theta_i\}}$ of $A(z)$. The formants in Hertz and their corresponding 3-dB bandwidth are given by \cite{Snell1993,Mathworks2015}:
 \begin{align*}
 F_i &= \frac{f_s}{2\pi}\theta_i \text{Hz}\\
 B_i &= -\frac{f_s}{\pi}\log{(r_i)} \text{Hz}
 \end{align*}
-\par The bandwidth is a metric to choose how distinguishing each formant is, and represents the width of each formant peak in the frequency domain. Narrower peaks represent more distinguishing formants. 
+\par The bandwidth is a metric to choose how distinguishing each formant is, and represents the width in Hertzof each formant peak 3-dB below the maximum. Narrower bandwidths represent more distinguishing formants. 
 \par Other approaches to estimate formants focus on finding different ways of estimating the LPC coefficients. For example, \cite{Darch,Araujo1998} propose calculating the LPC coefficients from a spectral envelope sampled exclusively at critical frequencies in the Mel-scale.
 \par As discussed in section \ref{birdsong_review}, birdsong and human speech have been found to be very similar sounds. Given that there is a broad literature in formant sequences being used as features for human speech, using them for birdsong modelling could prove useful. For example, \cite{Ferragne2010} used formant trajectories to show the phonetic differences of 13 different British accents. In \cite{Holmes1895}, the authors used formants to classify utterances of digits in English and compare the results against other feature extraction techniques (such as cepstral features). Finally, formants were also used for vowel sounds classification in \cite{markel1976}.
+\par Recall from section \ref{birdsong_review} that birdsong is very similar in anatomy to human vowels. Formants of human vowels have been widely studied, which suggests that similar results could be achieved for birdsong. Moreover, there is a broad literature on choosing the number of formants and the order of the underlying autoregressive model, which implies that parametrising it takes less time than doing it for wavelets. Moreover, being based on a theoretical model of sound production, formants possess strong biological and computational arguments to be used.
 
 \subsection{Information geometry} \label{subsection_infgeom}
-The framework of Information Geometry aims at applying tools from Differential Geometry to Probability Theory \cite{Wang2009}. It assumes that each object of study belongs to a point in a Riemannian manifold, and then proceeds to define similarity metrics between these points.
-\par The main motivation of this framework is to map objects into symbols that can be compared. In the domain of acoustic signals, this means to be able to build statistical models from a signal and then define a similarity metric between these.
+So far, we have described several techniques that map audio recordings to their frequency domain representations and then characterise it. It often happened that signals were to be segmented into sufficiently small windows, which were then analysed via any of these techniques. Therefore, the output for a whole recording would be a vector of observations. One disadvantage of all of these methods is that recordings are almost always of different length, and thus the resulting vectors of observations do not have the same dimensionality. This justifies the search for a more abstract method that compares patterns disregarding small numerical variations between them. 
+\par The framework of Information Geometry aims at overcoming these issues by applying tools from Differential Geometry to Probability Theory \cite{Wang2009}. It assumes that each object of study (e.g. a recording) belongs to a point in a Riemannian manifold, and then proceeds to define similarity metrics between these points. In the domain of acoustic signals, this means to be able to build statistical models from a signal and then define a similarity metric between these.
 \par The authors of \cite{Cont2011} define a framework for the analysis of acoustic signals using Information Geometry. They discuss, for example, how sequences of features (such as MFCCs) can be used to build an exponential probability distribution and how clustering (in particular, centroid computation) and model comparison can be performed over this distribution, rather than the raw features. They also apply this framework to automatically segment audio files by detecting pattern changes in the input signal.
 \par Even though Information Geometry has been studied mostly for parametric families of probability distributions \cite{Amari2001}, the key concept of having a structure that summarises the information of our objects of study and then define a similarity metric between them can be considered for other classes of models. Learning non-parametric probability distributions can be done by Kernel Density Estimation \cite{Goodall2008}, which takes a weighted combination of kernel functions as a probability distribution; other structures, such as Hidden Markov Models \cite{Chou2008,Muda2010,Hsieh2009,Wielgat2012}, have been broadly used in the Machine Learning community to model the distribution and shape of audio sequences over time. Building these objects as an intermediate step could prove useful to construct similarity matrices as detailed in section \ref{general_pipeline}, if the right metric is defined.
 
-\section{Metrics}\label{metrics_review}
-In this section, we list and discuss some similarity measures that have proven to be useful in the literature. In particular, we focus on two groups of metrics: those between points in a vector space, those between probability densities. The main goal is to introduce a discussion about the different contexts in which similarity measures can be used, remarking the differences between them.
-
-\subsection{Distance between two vectors}\label{subsection_eucdist}
-These metrics arise from considering two points $\V{x, y}$ as members of the same normed vector space $V$ of dimension $n$, i.e. $\V{x,y} \in V$. In the domain of Machine Learning, we can find the distance between two feature vectors by using any of the following:
-\begin{definition}{Manhattan Distance.} \label{def_manhattan}
-Also called City-Block distance, this metric is defined as:
-\begin{align*}
-d_{\text{Manhattan}}(\V{x}, \V{y}) = \sum_{i=1}^n\abs{x_i-y_i}
-\end{align*}
-\end{definition}
-\par This distance can be interpreted as sum of all axis-wise distances between the vectors.
-\begin{definition}{Euclidean distance.} \label{def_euclidean}
-This is the most widespread definition of distance, given by:
-\begin{align*}
-d_{\text{Euclidean}}(\V{x}, \V{y}) &= \sqrt{\sum_{i=1}^n(x_i-y_i)^2}\\
-&= \sqrt{\norm{\V{x}-\V{y}}}
-\end{align*}
-\end{definition}
-\par Both definitions above can be generalised into the Minkowski distance, given by:
-\begin{definition}{Minkowski distance.} \label{def_minkowski}
-\begin{align*}
-d_{p}(\V{x}, \V{y}) = \left(\sum_{i=1}^n(x_i-y_i)^{p}\right)^{1/p}, p\in\mathbb{N}
-\end{align*}
-\end{definition}
-\par Where the Manhattan and Euclidean distances correspond to the cases $p=1$ and $p=2$, respectively.
-\par From a Linear Algebra perspective, the three definitions above can also be seen as the p-norm of the vector $\V{x}-\V{y}$, where the p-norm is given by:
-\begin{definition}{$p$-norm.} \label{def_pnorm}
-\begin{align*}
-\norm{\V{x}}_p = \left(\sum_{i=1}^px_i^p\right)^{1/p}
-\end{align*}
-\end{definition}
-\par Now assume that are interested in computing the pairwise distance of a set $H$ of a vector space $V$, with $H \subset V$, and that we find the smallest hyper-ellipsoid $E$ that encloses $H$. Then, it is possible that $H$ is non-spherical. This can be understood in two ways: the range of the data over one dimension $x_i$ is different to the rest (and hence the hyper-ellipsoid does not look like a hyper-sphere) or the hyper-ellipsoid is slanted with respect to at least two axes $x_i, x_j$, in which case we say $x_i$ is correlated with $x_j$.
-\par The situations above describe data that has correlated variables occupying ranges of different length. In this case, computing pairwise distances using any of the methods described above could be uninformative, due to distances from larger axes diminishing the contribution of the smaller ones. As a consequence, a means of computing distance that would consider these variances in data was proposed by Mahalanobis in 1936 \cite{Bellet2013}.
-
-\begin{definition}{Mahalanobis distance.} \label{def_mahalanobis}
-Let $S$ be the covariance matrix of the set $H$ subset of a vector space $V$. Then, the Mahalanobis distance between two points $\V{x,y}\in H$ is given by:
-\begin{align*}
-d_{M}(\V{x}, \V{y}) = \sqrt{(\V{x}-\V{y})^TS^{-1}(\V{x}-\V{y})}
-\end{align*}
-\end{definition}
-
-\par In this case, the matrix $S^{-1}$ can be seen as a linear transformation that \emph{decorrelates} the data and then calculates the Euclidean distance as in definition \ref{def_euclidean}. 
-
-\subsection{Distance between two probability distributions}\label{subsection_pdfdist}
-In this subsection, we present distance metrics for probability distributions. We remark that the main goal of these methods is to quantify the similarity of two statistical objects, rather than two elements of a vector space. As a consequence, there is a change of focus in how we compute these distances: rather than manipulating the definition of the norm of a vector, we use statistical and information-theoretic foundations to define a similarity metric. 
-\begin{definition}{Symmetric Kullback-Leibler Divergence.} \label{def_skld1}
-Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the Symmetric KL-Divergence between $P$ and $Q$ is given by:
-\begin{align*}
-d_{\text{SKLD}}\infdiv{P}{Q} = \frac{d_{KL}\infdiv{P}{Q} + d_{KL}\infdiv{Q}{P}}{2}
-\end{align*}
-\end{definition}
-where $d_{KL}\infdiv{P}{Q}$ is the KL-Divergence of $Q$ from $P$, which is defined as:
-\begin{definition}{Kullback-Leibler Divergence.} \label{def_kld1}
-Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the KL-Divergence of $Q$ from $P$ is given by:
-\begin{align*}
-d_{KL}\infdiv{P}{Q} = \int_{-\infty}^{\infty}P(x)\log{\left(\frac{P(x)}{Q(x)}\right)}dx
-\end{align*}
-\end{definition}
-\par The above is only defined for distributions satisfying $Q(x) = 0 \implies P(x) = 0$. It can now be seen that the SKLD is just a procedure to add the symmetry property to the KL-Divergence. It can also be seen that the KL-Divergence already satisfies the rest of the properties from definition \ref{def_metric}, and that they are inherited by the SKLD \cite{Hershey2007}. 
-\par Intuitively, the KL-Divergence can be understood as a relative entropy measure \cite{Divergence2008}, i.e. how much information can we lose if we let $Q$ approximate $P$? By taking the average, we are also measuring the converse (letting $P$ approximate $Q$) and then re-scaling the result.
-
-\begin{definition}{Bhattacharyya coefficient.} \label{def_bhattacharyyacoef}
-The Bhattacharyya coefficient between two discrete distributions $P, Q$ is given by:
-\begin{align*}
-\rho(P, Q) = \int{\sqrt{P(x)Q(x)dx}}
-\end{align*}
-\end{definition}
-\par The Bhattacharyya coefficient serves to define the Hellinger distance:
-\begin{definition}{Hellinger distance.} \label{def_bhattacharyya}
-\begin{align*}
-d_B(P, Q) = \sqrt{1 - \rho(P, Q)}
-\end{align*}
-\end{definition}
-
-\par The last metric we present computes the distance between two probability distributions $p, q$ by using their respective cumulative distributions $P, Q$.
-\begin{definition}{Kolmogorov-Smirnov two-sample distance.} \label{def_ks2s}
-\begin{align*}
-D_{KS}(P, Q) = \sup_{x}\abs{P(x)-Q(x)}
-\end{align*}
-\end{definition}
-\par This distance can be interpreted as the maximum vertical distance both cumulative distributions at any point $x$, and is widely used as a statistical test to prove whether two samples were drawn from the same distribution \cite{KSMathworks2015}.
-
+\subsection{Conclusion}
+In this section, we introduced several feature extraction techniques. Advantages and disadvantages of each method were presented, but we can conclude that they mostly rely on mapping a time-domain signal into its frequency-domain representation, and then use another signal processing technique to characterise it. However, one method that goes further and gives biological arguments in its favour is formant trajectory extraction. Although they have not been used extensively in birdsong characterisation, the fact that birdsong anatomy resembles human vowels production suggests that formant trajectory extraction can lead to similar results.
+\par For these reasons, we will use formant trajectory extraction as our feature extraction method, and hence will offer a broader discussion in chapter \ref{chapter_formants}. However, we are interested in characterising these trajectories symbolically, i.e. small numerical variations should be disregarded in favour of characterising the shape of the trajectory. Methods to build this kind of abstract structures will be discussed in chapter \ref{chapter_hmms}.
 
 
 \section{Building relational structures}\label{algorithms_review}
-In this section, we present an overview of algorithms to build relational structures from distance matrices (unless a different input is stated). The goal is to give an outline of the different general approaches that have been presented in the literature, and what they were aiming at. We first introduce traditional approaches to clustering; then, we present more novel approaches to the same problem; finally, we introduce algorithms useful to detect communities in complex graphs.
+Once bird species have been characterised, a pairwise distance matrix can be built by using an appropriate metric. Appendix \ref{metrics_review} introduces metrics between pairs of vectors and pairs of probability distributions. A broader discussion is also offered in section \ref{section_similarity}.
+\par This distance matrix can be used to build a relational structure of bird species. There exist several algorithms to create relational structures, and the differences between them are usually related to the purposes each of them attends, e.g. are we build a tree or a general graph? Can a bird species belong to several clusters at the same time? Do clusters change through time? Algorithms addressing these issues are review in this section.
 
 \subsection{K-means algorithm} \label{subsection_kmeans}
 The first algorithm that we cover is K-means. This is an iterative descent algorithm that partitions a purely quantitative set $X$ of $M$ feature vectors into $K$ clusters \cite{hastie2008}. The procedure is divided in two stages: we first choose centroids $\{C_i\}$ (at random for initialisation, and then by finding the mean vector of every cluster) and then create new clusters by assigning each data point to the cluster with the closest centroid $C_i$ (in terms of the Euclidean distance). This is repeated until the clusters stop changing. Pseudocode for this procedure is given in algorithm \ref{alg_kmeans}.
@@ -409,7 +325,6 @@ d_{SL} = \min_{x_i\in C_1, x_i'\in C_2}{d_{i,i'}}
 \caption{A dendrogram with 11 leaves. The horizontal axis is the distance between the merged clusters; the vertical axis is the identifier of the leaves.}
 \label{fig_hag}
 \end{figure}
-
 
 \subsection{Divisive hierarchical clustering} \label{subsection_divisive}
 This approach can be seen as the counterpart of agglomerative clustering: rather than starting with $\abs{X}$ clusters, the algorithm considers the whole set $X$ as a single cluster and then splits it iteratively. Some results have shown that this paradigm can produce more accurate results in a shorter amount of time than agglomerative clustering, although there has not been as much research about it \cite{Manning2009}.  
@@ -463,10 +378,14 @@ $K_f \gets $ number of non-zero columns of $\V{W}$ or rows of $\V{H}$
 \par The main advantage of this method is that it accounts for overlapping communities and finds an approach that works well over weighted graphs (an aspect lacking from the approach in subsection \ref{subsection_gn}. Work to incorporate other factors in community detection, such as time and geographical dynamics is under way \cite{Psorakis2010}.
 \par However, similar to K-means, this method only allows us to see communities at a single instant in time, i.e. we do not see how communities (be them hard- or soft-partitioned) form as time flows. Therefore, this method proves to be more useful when we want to analyse static communities, rather than understanding how communities vary in granularity over time.
 
+\subsection{Conclusion}
+In this section, we reviewed several relational structure building algorithms. Each of them models a different kind of structure, and hence the choice of what algorithm to use depends heavily on what we are aiming to model. In this project, we aim to provide evidence of how bird species acoustics could have changed through time, i.e. we aim to progressively cluster bird species to simulate how birdsong could have diversified. This task is better suited for the hierarchical clustering algorithms described in this section. 
+\par In particular, using the agglomerative approach guarantees the existence of a visual representation of the relational structure, hence providing a straightforward way to make a qualitative assessment of the results. For these reasons, we give a deeper presentation of this algorithm in section \ref{section_hierarchical} and use it to generate our relational structures.
+
 \section{Conclusion}
 In this chapter we introduced a general pipeline to build relational structures, with three main processes: feature extraction, distance matrix computation, and cluster generation. Then, we described general aspects of birdsong that could be useful to choose appropriate techniques for later stages of the process. For each of the subsequent sections, we presented several techniques to fill in the gaps of the general pipeline described in section \ref{general_pipeline}.
-\par From section \ref{features_review}, we learned that one technique that is useful to model vocal sounds are formants. Although not much research of formants applied to birdsong has been done, this project could set some preliminary results to test whether they would be a faithful representation of birdsong data. Formants and a signal analysis review to expand on them are covered in chapter \ref{chapter_formants}.
-\par Additionally, in section \ref{features_review}, we also learned that using an intermediate statistical model, such as a probability distribution or a Hidden Markov Model, can serve to summarise the content and structure of data. In chapter \ref{chapter_hmms}, we further discuss the details on how to build this kind of models and expand the review of similarity metrics from section \ref{metrics_review}.
+\par From section \ref{features_review}, we learnt that one technique that is useful to model vocal sounds are formants. Although not much research of formants applied to birdsong has been done, this project could set some preliminary results to test whether they would be a faithful representation of birdsong data. Formants and a signal analysis review to expand on them are covered in chapter \ref{chapter_formants}.
+\par Additionally, in section \ref{features_review}, we also learnt that using an intermediate statistical model, such as a probability distribution or a Hidden Markov Model, can serve to summarise the content and structure of data. In chapter \ref{chapter_hmms}, we further discuss the details on how to build this kind of models and expand the review of similarity metrics from section \ref{metrics_review}.
 \par Furthermore, hierarchical clustering is retaken in chapter \ref{chapter_hmms} as well. This approach can be useful to model dynamics in communities and clusters, especially in bird species, discovering structures under specific lifetimes is relevant. 
 \par To conclude, we have seen that although there is a limited amount of research on birdsong community detection, solutions can be approached by filling the gaps of a generic pipeline - this means that this literature review is also useful for work to be done beyond this dissertation.
 \end{document}

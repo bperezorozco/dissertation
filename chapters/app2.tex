@@ -1,0 +1,85 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document} \label{metrics_review}
+In this section, we list and discuss some similarity measures that have proven to be useful in the literature. In particular, we focus on two groups of metrics: those between points in a vector space, those between probability densities. The main goal is to introduce a discussion about the different contexts in which similarity measures can be used, remarking the differences between them.
+
+\section{Distance between two vectors}\label{subsection_eucdist}
+These metrics arise from considering two points $\V{x, y}$ as members of the same normed vector space $V$ of dimension $n$, i.e. $\V{x,y} \in V$. In the domain of Machine Learning, we can find the distance between two feature vectors by using any of the following:
+\begin{definition}{Manhattan Distance.} \label{def_manhattan}
+Also called City-Block distance, this metric is defined as:
+\begin{align*}
+d_{\text{Manhattan}}(\V{x}, \V{y}) = \sum_{i=1}^n\abs{x_i-y_i}
+\end{align*}
+\end{definition}
+\par This distance can be interpreted as sum of all axis-wise distances between the vectors.
+\begin{definition}{Euclidean distance.} \label{def_euclidean}
+This is the most widespread definition of distance, given by:
+\begin{align*}
+d_{\text{Euclidean}}(\V{x}, \V{y}) &= \sqrt{\sum_{i=1}^n(x_i-y_i)^2}\\
+&= \sqrt{\norm{\V{x}-\V{y}}}
+\end{align*}
+\end{definition}
+\par Both definitions above can be generalised into the Minkowski distance, given by:
+\begin{definition}{Minkowski distance.} \label{def_minkowski}
+\begin{align*}
+d_{p}(\V{x}, \V{y}) = \left(\sum_{i=1}^n(x_i-y_i)^{p}\right)^{1/p}, p\in\mathbb{N}
+\end{align*}
+\end{definition}
+\par Where the Manhattan and Euclidean distances correspond to the cases $p=1$ and $p=2$, respectively.
+\par From a Linear Algebra perspective, the three definitions above can also be seen as the p-norm of the vector $\V{x}-\V{y}$, where the p-norm is given by:
+\begin{definition}{$p$-norm.} \label{def_pnorm}
+\begin{align*}
+\norm{\V{x}}_p = \left(\sum_{i=1}^px_i^p\right)^{1/p}
+\end{align*}
+\end{definition}
+\par Now assume that are interested in computing the pairwise distance of a set $H$ of a vector space $V$, with $H \subset V$, and that we find the smallest hyper-ellipsoid $E$ that encloses $H$. Then, it is possible that $H$ is non-spherical. This can be understood in two ways: the range of the data over one dimension $x_i$ is different to the rest (and hence the hyper-ellipsoid does not look like a hyper-sphere) or the hyper-ellipsoid is slanted with respect to at least two axes $x_i, x_j$, in which case we say $x_i$ is correlated with $x_j$.
+\par The situations above describe data that has correlated variables occupying ranges of different length. In this case, computing pairwise distances using any of the methods described above could be uninformative, due to distances from larger axes diminishing the contribution of the smaller ones. As a consequence, a means of computing distance that would consider these variances in data was proposed by Mahalanobis in 1936 \cite{Bellet2013}.
+
+\begin{definition}{Mahalanobis distance.} \label{def_mahalanobis}
+Let $S$ be the covariance matrix of the set $H$ subset of a vector space $V$. Then, the Mahalanobis distance between two points $\V{x,y}\in H$ is given by:
+\begin{align*}
+d_{M}(\V{x}, \V{y}) = \sqrt{(\V{x}-\V{y})^TS^{-1}(\V{x}-\V{y})}
+\end{align*}
+\end{definition}
+
+\par In this case, the matrix $S^{-1}$ can be seen as a linear transformation that \emph{decorrelates} the data and then calculates the Euclidean distance as in definition \ref{def_euclidean}. 
+
+\section{Distance between two probability distributions}\label{subsection_pdfdist}
+In this subsection, we present distance metrics for probability distributions. We remark that the main goal of these methods is to quantify the similarity of two statistical objects, rather than two elements of a vector space. As a consequence, there is a change of focus in how we compute these distances: rather than manipulating the definition of the norm of a vector, we use statistical and information-theoretic foundations to define a similarity metric. 
+\begin{definition}{Symmetric Kullback-Leibler Divergence.} \label{def_skld1}
+Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the Symmetric KL-Divergence between $P$ and $Q$ is given by:
+\begin{align*}
+d_{\text{SKLD}}\infdiv{P}{Q} = \frac{d_{KL}\infdiv{P}{Q} + d_{KL}\infdiv{Q}{P}}{2}
+\end{align*}
+\end{definition}
+where $d_{KL}\infdiv{P}{Q}$ is the KL-Divergence of $Q$ from $P$, which is defined as:
+\begin{definition}{Kullback-Leibler Divergence.} \label{def_kld1}
+Let $P(x), Q(x)$ be two probability distributions defined over the same domain. Then, the KL-Divergence of $Q$ from $P$ is given by:
+\begin{align*}
+d_{KL}\infdiv{P}{Q} = \int_{-\infty}^{\infty}P(x)\log{\left(\frac{P(x)}{Q(x)}\right)}dx
+\end{align*}
+\end{definition}
+\par The above is only defined for distributions satisfying $Q(x) = 0 \implies P(x) = 0$. It can now be seen that the SKLD is just a procedure to add the symmetry property to the KL-Divergence. It can also be seen that the KL-Divergence already satisfies the rest of the properties from definition \ref{def_metric}, and that they are inherited by the SKLD \cite{Hershey2007}. 
+\par Intuitively, the KL-Divergence can be understood as a relative entropy measure \cite{Divergence2008}, i.e. how much information can we lose if we let $Q$ approximate $P$? By taking the average, we are also measuring the converse (letting $P$ approximate $Q$) and then re-scaling the result.
+
+\begin{definition}{Bhattacharyya coefficient.} \label{def_bhattacharyyacoef}
+The Bhattacharyya coefficient between two discrete distributions $P, Q$ is given by:
+\begin{align*}
+\rho(P, Q) = \int{\sqrt{P(x)Q(x)dx}}
+\end{align*}
+\end{definition}
+\par The Bhattacharyya coefficient serves to define the Hellinger distance:
+\begin{definition}{Hellinger distance.} \label{def_bhattacharyya}
+\begin{align*}
+d_B(P, Q) = \sqrt{1 - \rho(P, Q)}
+\end{align*}
+\end{definition}
+
+\par The last metric we present computes the distance between two probability distributions $p, q$ by using their respective cumulative distributions $P, Q$.
+\begin{definition}{Kolmogorov-Smirnov two-sample distance.} \label{def_ks2s}
+\begin{align*}
+D_{KS}(P, Q) = \sup_{x}\abs{P(x)-Q(x)}
+\end{align*}
+\end{definition}
+\par This distance can be interpreted as the maximum vertical distance both cumulative distributions at any point $x$, and is widely used as a statistical test to prove whether two samples were drawn from the same distribution \cite{KSMathworks2015}.
+
+\end{document}
