@@ -2,11 +2,9 @@
 \begin{document} \label{chapter_hmms}
 
 Having extracted formant trajectories, our goal is now to build a more abstract structure that summarises their shape and content. This reflects the need to measure the similarity of the trajectories symbolically, rather than as sequences of varying length. Once any such structure has been trained, a similarity measure can be used to create a distance matrix, which serves as input to the relational structure building algorithms described in section \ref{algorithms_review}.
-\par We first discuss statistical models to represent formant trajectories. In section \ref{section_kde}, we describe a method to generate a discrete probability distributions as a linear combination of basis functions. After, in section \ref{subsection_gmm}, we generalise this discussion to model formant trajectories as a mixture of Gaussians. This allows us to introduce latent variables, i.e. to explicitly let the content formant trajectories be described
-as a mixture of hidden parametrised distributions.
-\par In section \ref{section_hmm}, we further extend the discussion to models that allow learning of time-ordered sequences: Hidden Markov Models. In particular, we do not only discuss the concept of HMMs, but we also touch on Bayesian Inference, a powerful concept that allows us to do fully probabilistic learning. Next, we discuss Approximate
-Inference, which is a method to perform Bayesian Inference over models with latent variables, where full Bayesian Inference often becomes intractable.
-\par We then present similarity metrics between the statistical models presented in this chapter, in section \ref{section_similarity}. These enable us to perform agglomerative hierarchical clustering, which we touched on first in chapter \ref{chapter_soa}. We give a deeper discussion on this technique in section \ref{section_hierarchical}.
+\par We first discuss statistical models to represent formant trajectories. In section \ref{section_kde}, we describe a method to generate discrete probability distributions as a linear combination of basis functions. And in section \ref{subsection_gmm}, we generalise this discussion to model formant trajectories as a mixture of Gaussians. This allows us to introduce latent variables, i.e. to explicitly let the entries $\V{f}_i$ of formant trajectories be described as a mixture of hidden parametrised distributions.
+\par In section \ref{section_hmm}, we further extend the discussion to models that allow learning of time-ordered sequences: Hidden Markov Models. In particular, we do not only introduce the concept of HMMs, but we discuss Bayesian Inference, which allows for probabilistic learning in the HMMs. One issue with Bayesian Inference is that it can scale poorly with the size of data and model. To this end, we discuss Approximate Inference, allowing efficient Bayesian Inference over models with latent variables, where full Bayesian Inference often becomes intractable.
+\par In section \ref{section_similarity}, we then present similarity metrics between the statistical models presented in this chapter. These enable us to perform agglomerative hierarchical clustering, which we touched on first in chapter \ref{chapter_soa}. We give a deeper discussion on this technique in section \ref{section_hierarchical}.
 
 
 \section{Kernel density estimation} \label{section_kde}
@@ -29,11 +27,11 @@ is the histogram corresponding to the dataset $X$ for the given endpoints.
 \begin{align*}
 \left|\frac{x_j - c_i}{h_i}\right| \leq 1
 \end{align*}
-\par then an instance of the uniform distribution $\mathcal{U}_i(x) = \frac{\mathbb{I}(b_i < x \leq b_{i+1})}{2h_i}$ is ``stacked" over $c_i$. To summarise, we can conclude that the histogram probability distribution can be modelled equivalently as:
+then an instance of the uniform distribution $\mathcal{U}_i(x) = \frac{\mathbb{I}(b_i < x \leq b_{i+1})}{2h_i}$ is ``stacked" over $c_i$. To summarise, we can conclude that the histogram probability distribution can be modelled equivalently as:
 \begin{align*}
 p_H(x) = \frac{1}{N}\sum_{i=1}^M\frac{1}{2h_i}\mathbb{I}\left(\left|\frac{x - c_i}{h_i}\right| \leq 1\right)
 \end{align*}
-\par In other words, we have an asset of $N$ uniform distributions centered at each $c_i$; by additivity of integration, the total area under these distributions is equal to $N$, and thus we just have to normalise by dividing over $N$ to make this linear combination a new probability distribution. Now, assume that we let each uniform distribution $\mathcal{U}_i$ have the same width, and that we center each uniform distribution at each $x_j \in X$, i.e. now we have $N$ overlapping bins. Then, the expression above becomes:
+\par In other words, we have an asset of $N$ uniform distributions centred at each $c_i$; by additivity of integration, the total area under these distributions is equal to $N$, and thus we just have to normalise by dividing over $N$ to make this linear combination a new probability distribution. Now, assume that we let each uniform distribution $\mathcal{U}_i$ have the same width, and that each uniform distribution is centred at each $x_j \in X$, i.e. now we have $N$ overlapping bins. Then, the expression above becomes:
 \begin{align*}
 p_{H}(x) &= \frac{1}{N}\sum_{j=1}^N\frac{1}{2h}\mathbb{I}\left(\left|\frac{x - x_j}{h}\right| \leq 1\right)\\
 &= \frac{1}{Nh}\sum_{j=1}^NK_u(\left|\frac{x - x_j}{h}\right|),\\
@@ -44,7 +42,7 @@ K_u(x) &= \left\{
      \end{array}
    \right.
 \end{align*}
-\par This function no longer represente¿s a histogram, but rather a staircase pyramid, as shown in figure \ref{fig_hist2}. Moreover, we also notice that we have transformed our original expression so as to make it depend on a very well known function, the uniform kernel $K_u$ \cite{Hansen2009}. 
+\par This function no longer represent a histogram, but rather a staircase pyramid, as shown in figure \ref{fig_hist2}. Moreover, we also notice that we have transformed our original expression so as to make it depend on a very well known function, the uniform kernel $K_u$ \cite{Hansen2009}. 
 \begin{figure}[t]
 \centering
 \includegraphics[width=80mm]{histogram2}
