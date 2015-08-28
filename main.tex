@@ -11,7 +11,10 @@
 
 \usepackage{algorithm}% http://ctan.org/pkg/algorithms
 \usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
-
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{epstopdf}
 \usepackage[font=small,labelfont=bf]{caption}
 \usetikzlibrary{shapes.geometric, arrows}
 \theoremstyle{definition}
@@ -99,13 +102,9 @@
 
 \subfile{chapters/ch5.tex}
 
-\chapter{Experiments and results}
-
-\subfile{chapters/ch6.tex}
-
 \chapter{Conclusions and future work}
 
-\subfile{chapters/ch7.tex}
+\subfile{chapters/ch6.tex}
 
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{unsrt}
@@ -113,6 +112,8 @@
 
 
 \appendix
+\chapter{Phylo-acoustic trees}
+\subfile{chapters/app_phylo.tex}
 
 \chapter{Metrics review}
 
