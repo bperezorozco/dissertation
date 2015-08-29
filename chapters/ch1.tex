@@ -1,37 +1,59 @@
 \documentclass[../main.tex]{subfiles}
-\begin{document}
-Computational methods have allowed us to 
+\begin{document} \label{chapter_intro}
+\section{Background}
+Machine Learning (ML) has become ubiquitous. Lying at the intersection between Statistics and Computer Science, its applications cover a broad range of fields: automatic speech recognition, face identification in visual media, sentiment analysis and tumour classification are just a few of the tasks that can be solved by using ML methods. Although the development of new models and algorithms is mostly a concern of Statistics and Computer Science, several fields of application have contributed to broaden its horizons by demanding to solve increasingly complex tasks. 
+\par If algorithms and statistical models are the tools ML works with, then data can be regarded as its raw material. Simultaneous to the development of ML, vast amounts of data have become available in recent years. This is due crucially to the increasing provision of devices and services that humans use to capture data. Microphones have allowed the continuous recording of natural environments, surveillance cameras have greatly increased the amount of video available, and the development of web services, such as social networks, have encouraged users to upload their own content to the web. 
+\par These phenomena are directly related to \emph{citizen science}, which is associated to users that do not exercise science as a profession, but still collaborate to gather data by means of their own devices. Citizen science is one of the reasons of the exponential growth in the amount of data in the world in recent years, which, as of 2015, is estimated to be 7,910 exabytes (1 exabyte = $2^{18}$ bytes), 50 times more than it was only ten years ago \cite{TheEconomistOnline2011}.
+\par This increased availability of data, alongside the increasingly widespread use of computational methods across other fields of study, has contributed to make ML techniques a standard to analyse data. In particular, scientists are often concerned by finding hidden structure in their data in order to gain further insight. ML techniques that aim to solve this task form part of a branch called \emph{unsupervised learning}. 
+\par Consider, for instance, the bewildering number of bird species common to Europe, whose range, diversity and biodiversity are not well understood. Projects such as XenoCanto and the Animal Sound Archive have benefited from citizen science in order to offer large bird vocalisation datasets for these species. Using this data, scientists can contribute to the quantification of environments across Europe.
+\par Quantification of environments is important because it allows us to analyse phenomena in a formal manner. In particular, interaction between species, interaction between of individuals, migration patterns and environmental diversity are some examples of phenomena that can be analysed by means of the datasets described above.
+
+\section{Problem definition and justification}
+Now consider the problem of modelling the similarity between two bird species by means of their vocalisations. Given a set of bird species and a similarity metric, it is possible to visualise this set as a relational structure, and draw conclusions from it. In particular, we could ask if this graph does have a structure. Proving this hypothesis would have strong implications in the biological sense, since we would be showing that there is an informative relation between the vocalisations emitted by different bird species.
+\par In this dissertation, we aim to build a phylo-acoustic tree, which is a hierarchical relational structure with the properties described above. Adding a hierarchical property to it will enable us to discover the structure in data in different levels of granularity to our results and hence to draw finer conclusions. 
+\par There are two perspectives from which building this relational structure provides insight. One is the zoological perspective, in which the relational structure unveils interactions between bird species that can be further explain by biological theories. For example, a tree containing a subtree with mostly species from the same genus (first word in the scientific name) indicates that birdsong might be linked to species diversification over time. A second example would be two species that are also clustered in a subtree, but rather than belonging to the same genus, they inhabit the same area. This would suggest that bird vocalisation is closely related to geographical location of bird species.
+\par Nonetheless, making a formal evaluation of biological aspects is outside the scope of this project. We instead focus on the insight provided by a ML perspective of the problem. Building a phylo-acoustic tree from bird vocalisations opens a discussion in the following points:
+\begin{itemize}
+\item As will be reviewed in section \ref{birdsong_review}, birdsong shares many common traits with vocal human sounds. This suggests that techniques used to analyse these sounds could extend to analyse birdsong and produce results of the same quality, which is interesting from a \emph{feature extraction} (see section \ref{features_review}) point of view. Moreover, any results working on birdsong could be set forth as future work to be tested for vocal human sounds, which would provide insight on the Automatic Speech Recognition field.
+\item Although looking for specific phylo-genetic or geographical relations between species is not part of the project, we are concerned by proving that the recordings do have a structure. This provides formal insight on whether there is statistical evidence of certain species singing more similarly than others.
+\item Enabling a metric over bird species vocalisations requires proposing a model that is abstract enough to overcome the difficulties of comparing birdsong features sequences (such as different length or small numerical perturbations). Tackling this challenge can set an antecedent on ways of comparing abstract objects other than bird vocalisations.
+\item Similarity metrics research is of great interest to ML, and having to define one for symbolic models that characterise bird vocalisations can pose to be a challenge depending on the complexity of the model. 
+\end{itemize}
+
+\section{Project goals}
+Having described our problem and justified it, we now set out the goals of this dissertation:
+\begin{enumerate}
+\item To build a phylo-acoustic tree of bird species by means of bird vocalisations only. 
+\item To define a method to build relational structures from bird vocalisations. This pipeline should be generic enough so as to permit ``filling in the gaps'' with one among a range of techniques.
+\item To provide a review of the main biological concepts related to bird vocalisation, hence setting out the theory a good feature extraction method should consider.
+\item To provide a broad literature review so as to give several options to implement the proposed method. Even though not all techniques will be implemented in this work, this state of the art directly sets out future work by describing other techniques that can be used to build relational structures.
+\item To infer optimal feature representations for distinguishing bird species.
+\item To propose a statistical model that symbolically characterises a species' vocalisations. This encourages learning abstract concepts that fully characterise vocalisations.
+\item To find a similarity metric between bird vocalisations. This is equivalent to finding a metric between the symbolic models described in the previous goal.
+\end{enumerate}
+
+\section{Dissertation outline and work carried out}
+This dissertation is organised as follows:
+\par In chapter \ref{chapter_soa}, we define a general pipeline to produce relational structures and a review on the biological aspects of birdsong production. Moreover, we give an extensive literature review on feature extraction techniques and relational structure algorithms.
+\par Chapter \ref{chapter_formants} described the chosen feature extraction technique: formant trajectories. We also offer a Digital Signal Processing review in this chapter.
+\par Chapter \ref{chapter_hmms} aims to describe statistical models to symbolically learn formant trajectories. In particular, we discuss Kernel Density Estimation, Gaussian Mixture Models and Variational Bayes Hidden Markov Models. Moreover, we present similarity metrics between these models and give a further description of Agglomerative Hierarchical Clustering, the method used to build phylo-acoustic trees.
+\par Then, chapter \ref{chapter_account} gives an account of the implementation and experiments carried out in this project.
+\par Finally, chapter \ref{chapter_conclusion} provides a summary of the contributions offered in this dissertation and describes future research.
 
 
 
-A few ideas to keep in the introduction (STILL MESSY)
 
-1. We have an excessive amount of information\\
-2. We also have an excessive amount of computational power\\
-3. This information can be of use to make conclusions about our world\\
-4. Machine Learning takes advantage of these two.\\
-5. What sorts of problems can we solve? \\
-6. We can learn stuff about our world by building structures and then reasoning about them. \\
-7. One such structure is a phylo-acoustic tree, i.e. a tree that shows relationships between animal species in terms of their vocalisations. 
-8. If we were able to draw one such tree - what kind of conclusions would we able to draw from it? \\
-9. Naturally, we would expect to see "similar birds" closely tied in the tree. Similar birds in this sense would be those that sing similarly. What birds would we expect to sing similarly? Some examples would be those birds that belong to the same genus, or the birds that belong to the same family or order. \\
-10. A way of empirically proving this hypothesis would be to find a way to build a phyloacoustic tree, and measure if the underlying clusters make sense in the way described above.\\
-11. This process largely covers three steps: find a way of representing relevant information from birdsong (feature extraction). This representation will be useful to calculate similarity between bird species. \\
-12. What problems do we have:
+Introduction
+Move 1 Background
+Possible Steps 
+3. Reviewing previous research
+Move 2 
+Indicating a Problem or Need
+2
+Move 3 Presenting the Research
+Possible Steps 1. Purposes, aims, objectives
+2. Work carried out
+3. Justification or importance of the research
+4. Outline of the structure of the dissertation
 
-a. how do we extract and represent relevant information from birdsong recordings.
-b. how do we calculate similarity between bird species.
-c. how do we build a phyloacoustic tree from the information above.
-d. how do we evaluate a particular phyloacoustic tree.\\
-13. In this thesis work I present a way of building and evaluating phyloacoustic trees. 
-14. We see that...
-15. This piece of work is relevant because...
-16. The work is presented in the following way:
-- A literature review is given in Chapter 2
-- The problem and goals are presented in Chapter 3
-- A solution and its implementation are discussed in Chapter 4
-- Experimentation results are analysed and discussed in Chapter 5
-- Chapter 6 presents a conclusion and a brief overview of future work.
-17. Without further ado, we begin. \cite{Awatade2012}
-18. A relational structure shows relationships among entities. The most general way of visualising a relational structure looks like a graph $G = (V, E)$, where $V$ is a set of entities or \emph{vertices} and $E$ is a set of \emph{edges}. 
 \end{document}

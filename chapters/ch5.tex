@@ -99,7 +99,7 @@ In subsection \ref{section_impformants}, we briefly justified why choosing only 
 \begin{align*} 
 \hat{\V{f}} = \sum_{i=2}^W \abs{\V{f}_{i} - \V{f}_{i-1}}
 \end{align*}
-\par Note that the larger any entry $\hat{\V{f}}_k$ is, the more scattered formant $k$ is along the frequency axis. Our hypothesis is that, if all individual formant trajectories F1, F2, ..., FD for a given recording were equally structured, then the vector $\hat{\V{f}}$ would tend to be uniform. Recall from section \ref{section_impformants} that we used a rule of thumb to find one formant every 1 kHz. The more the formants jump from one frequency band to another (i.e. the less structured they are), the larger the difference between consecutive windows becomes. Figure \ref{fig_choose} shows an example in which $\hat{\V{f}}_1$ is greater than both, $\hat{\V{f}}_2$ and $\hat{\V{f}}_3$.
+\par Note that the larger any entry $\hat{\V{f}}_k$ is, the more scattered formant $k$ is along the frequency axis. Our hypothesis is that, if all individual formant trajectories F1, F2, ..., FD for a given recording were equally structured, then the vector $\hat{\V{f}}$ would tend to be uniform. Recall from section \ref{section_impformants} that we used a rule of thumb to find one formant every 1 kHz. The more the formants jump from one frequency band to another (i.e. the less structured they are), the larger the difference between consecutive windows becomes. Figure \ref{fig_choose} shows an example in which $\hat{\V{f}}_1$ is smaller than both, $\hat{\V{f}}_2$ and $\hat{\V{f}}_3$.
 
 \begin{figure}[ht]
 \centering
@@ -107,23 +107,23 @@ In subsection \ref{section_impformants}, we briefly justified why choosing only 
 \caption{A formant trajectory where the first three formants F1 (blue), F2 (red), F3 (yellow) have been extracted from each frame. Note that F2 and F3, although not completely lacking a structure, look considerably less smooth than F1 over time.}
 \label{fig_choose}
 \end{figure}
-\par Now consider the set of quantities:
+\par Now consider the set of vectors:
 \begin{align*}
 \mathcal{C} = \left\{\frac{\hat{\V{f}}^{(1)}}{\hat{\V{f}}^{(1)}_1}, \frac{\hat{\V{f}}^{(2)}}{\hat{\V{f}}^{(2)}_1}, ..., \frac{\hat{\V{f}}^{(\abs{R})}}{\hat{\V{f}}^{(\abs{R})}_1}\right\}
 \end{align*}
-where $\abs{R}$ is number of birdsong recordings contained in our dataset. This set describes the consecutive difference vectors divided by the consecutive difference of the first formant, i.e. for each bird species, it relates how much more scattered the $k$-th formant is with respect to the first formant. For any scalar greater than 1, we conclude that formant $k$ is more scattered than F1 for that recording according to this measure. 
+where $\abs{R}$ is number of birdsong recordings contained in our dataset. This set describes the consecutive difference vectors divided by the consecutive difference of the first formant, i.e. for each bird species, each vector describes how much more scattered the $k$-th formant is with respect to the first formant. For any scalar greater than 1, we conclude that formant $k$ is more scattered than F1 for that recording according to this measure. 
 \par In this experiment, we first compute the formant trajectories with the first seven formants of every recording in our dataset, and use them to provide evidence of the comparatively less structured shape of formants greater than F1. To this end, consider the quantity:
 \begin{align*}
 f'_{i, j} = \frac{1}{\abs{\mathcal{R}}}\sum_{r \in \mathcal{R}} \mathbb{I}(\hat{\V{f}}^{(r)}_i < \hat{\V{f}}^{(r)}_j)
 \end{align*}
-i.e. the proportion of recordings in which the individual trajectory for formant $i$ had more structure than the one for formant $j$. We give the quantities $\mu(\mathcal{C})$ and $f'_{1, j}, \forall j > 1$ in table  \ref{table_choose}.
+i.e. the proportion of recordings in which the individual trajectory for formant $i$ had more structure than the one for formant $j$. We give the quantities $\mu(\mathcal{C})$ and $f'_{i, 1}, \forall j > 1$ in table  \ref{table_choose}.
 \begin{table}[ht]
 \centering
 \begin{tabular}{r|r|r|r|r|r|r|r} 
  \textbf{Qty} &\textbf{F1} &  \textbf{F2}&  \textbf{F3}&  \textbf{F4}&  \textbf{F5}&  \textbf{F6}&  \textbf{F7}\\
  \hline
  $\mu(\mathcal{C})$ & 1.0000  &  2.4295  &  2.6233  &  2.9560  &  3.2443  &  3.5412  &  3.9243 \\
- $f'_{1, j}$ & 0 & 0.0794 & 0.0565 & 0.0199 & 0.0024 & 0 & 0
+ $f'_{i, 1}$ & 0 & 0.0794 & 0.0565 & 0.0199 & 0.0024 & 0 & 0
 \end{tabular}
 \caption{The first row of this table described how much more scattered an individual formant trajectory is with respect to the first formant, F1. The second row described the proportion of recordings that had more structure than F1 in the whole dataset according to the consecutive formant difference metric.}\label{table_choose}
 \end{table}
