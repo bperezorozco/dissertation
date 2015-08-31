@@ -1,14 +1,14 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document} \label{chapter_account}
-In this chapter, we describe our implementation of the general pipeline described in section \ref{general_pipeline} and the achieved results. On one hand, we describe the birdsong dataset and the corresponding preprocessing techniques we used, as well the algorithms and packages used to implement formant trajectory extraction, Kernel Density Estimation, Variational Hidden Markov Models and Agglomerative Hierarchical Clustering, as described in chapters \ref{chapter_formants} and \ref{chapter_hmms}. On the other hand, we present the achieved relational structures (henceforth called phylo-acoustic trees) and other experiments performed over birdsong data.
+In this chapter, we describe our implementation of the general pipeline described in section \ref{general_pipeline} and the achieved results. Firstly, we describe the birdsong dataset and the corresponding preprocessing techniques we used, as well the algorithms and packages used to implement formant trajectory extraction, Kernel Density Estimation, Variational Hidden Markov Models and Agglomerative Hierarchical Clustering, as described in chapters \ref{chapter_formants} and \ref{chapter_hmms}. Secondly, we present the achieved relational structures (henceforth called phylo-acoustic trees) and other experiments performed over birdsong data.
 
 \section{Implementation} \label{section_implementation}
 We implemented a system capable of building phylo-acoustic trees automatically. The implementation runs in MATLAB 2015a and all the experiments were executed on a computer with an Intel i5-3317U CPU, 8.00 GB RAM, running Windows 8.1 64-bits. 
-\par With respect to the data, we used the Animal Sound Archive bird vocalisation dataset, which contains 3686 birdsong recordings of more than 100 different bird species from all over Europe. We used the data for 82 bird species that had at least 15 seconds of birdsong recording each. All the recordings are in WAV format (i.e. uncompressed) and sampled at 22,500 Hz, for reasons that will become clearer when we present the formant trajectory extraction implementation. 
+\par With respect to the data, we used the Animal Sound Archive bird vocalisation dataset, which contains 3686 birdsong recordings of more than 100 different bird species from all over Europe \cite{AnimalSoundArchive2015}. We used the data for 82 bird species that had at least 15 seconds of birdsong recording each. All the recordings are in WAV format (i.e. uncompressed) and sampled at 22,500 Hz, for reasons that will become clearer when we present the formant trajectory extraction implementation. 
 
 \subsection{Formant trajectory extraction} \label{section_impformants}
-As reviewed in chapter \ref{chapter_formants}, the goal of formant trajectory extraction is to generate a vector $\V{F} = \{\V{f}_1, \V{f}_2, ..., \V{f}_W\}$ of formants $\V{f}_i$ in each signal frame. We now use the signal processing techniques described in section \ref{subsection_preproc}: a pre-emphasis filtering with $\alpha = 0.95$ is first applied to the birdsong recording, which is then segmented into frames of 40 ms with an overlap of 50\% \cite{Stowell2014}. Every frame is then convoluted with a Hamming window to avoid sharp-edged frames. 
-\par The number of formants we estimate per window corresponds to the rule of thumb $N_f = f_s / 2000$, where $f_s$ is the sampling frequency of the recording. Since birdsong goes to frequencies as high as 10,000 Hz \cite{Marler2004}, and that we want to have 1 formant per thousand Hz, all the birdsong files must be sampled at 22,500 Hz. Furthermore, the order of the LPC model corresponds to the rule of thumb $p = 2N_f + 2$, i.e. we have 1 formant for every 2 roots, and let the model have an extra 2 roots to handle very low frequencies where large amounts of energy are contained, but are not resonances of the vocal tract \cite{Benesty}. 
+As reviewed in chapter \ref{chapter_formants}, the goal of formant trajectory extraction is to generate a vector $\V{F} = \{\V{f}_1, \V{f}_2, ..., \V{f}_W\}$ of formants $\V{f}_i$ in each signal frame. We now use the signal processing techniques described in section \ref{subsection_preproc}: a pre-emphasis filtering with $\alpha = 0.95$ is first applied to the birdsong recording, which is then segmented into frames of 40 ms with an overlap of 50\% \cite{Stowell2014}. Every frame is then convolved with a Hamming window to avoid sharp-edged frames. 
+\par The number of formants we estimate per window corresponds to the rule of thumb $N_f = f_s / 2000$, where $f_s$ is the sampling frequency of the recording \cite{markel1976}. Since birdsong goes to frequencies as high as 10,000 Hz \cite{Marler2004}, and that we want to have 1 formant per thousand Hz, all the birdsong files must be sampled at 22,500 Hz. Furthermore, the order of the LPC model corresponds to $p = 2N_f + 2$, i.e. we have 1 formant for every 2 roots, and let the model have an extra 2 roots to handle very low frequencies where large amounts of energy are contained, but are not resonances of the vocal tract \cite{Benesty}. 
 \par Finally, the autocorrelation $\V{r}$ is estimated by using the Wiener-Khinchin Theorem and the rest of the formant trajectory extraction proceeds as outlined in chapter \ref{chapter_formants}, and summarised in algorithm \ref{alg_formants}. MATLAB contains an implementation of the Fast Fourier Transform algorithm and polynomial root solving algorithms. Furthermore, the Signal Processing Toolbox contains an implementation of the Levinson-Durbin recursion. These algorithms were assembled in a single, parametrised procedure to extract formants from recordings.
 
 \begin{algorithm}
@@ -25,7 +25,7 @@ As reviewed in chapter \ref{chapter_formants}, the goal of formant trajectory ex
 \end{algorithmic}
 \end{algorithm}
 
-\par Once the formants for a given window have been calculated, all values $f_{i, j} < 500 Hz$ are filtered as noise \cite{Stowell2014}, and only the formants with a bandwidth narrower than 500 Hz are kept \cite{Mathworks2015}. However, not all of these formants are useful. Although we do not give a formal proof, in subsection \ref{section_choosing} we show that the individual trajectory corresponding to the first formant of every segment if the smoothest one. Characterising each recording by a single, unidimensional trajectory allows us to simplify the parametrisation and training of the statistical models discussed in chapter \ref{chapter_hmms}, hence trading complex features for a potentially more efficient and accurate statistical description.
+\par Once the formants for a given window have been calculated, all values $f_{i, j} < 500 Hz$ are filtered as noise \cite{Stowell2014}, and only the formants with a bandwidth narrower than 500 Hz are kept \cite{Mathworks2015}. However, not all of these formants are useful. Although we do not give a formal proof, in subsection \ref{section_choosing} we show that the individual trajectory corresponding to the first formant of every segment is the smoothest one. Characterising each recording by a single, unidimensional trajectory allows us to simplify the parametrisation and training of the statistical models discussed in chapter \ref{chapter_hmms}, hence trading complex features for a potentially more efficient and accurate statistical description.
 \par Nevertheless, we still provide an implementation that extracts a specific number of formants. An example of the output produced for the first formant trajectory of a birdsong recording is shown in figure \ref{fig_traj}.
 
 \begin{figure}[t]
@@ -139,7 +139,49 @@ In this section, we present the final output of the implementation pipelines dis
 \item Symmetric KL Divergence over the Dirichlet distributions associated to the transition models of our Hidden Markov Models.
 \item Occupancy-weighted Symmetric KL Divergence (as described in \ref{subsection_hmmsim}) over the Dirichlet distributions associated to the transition models of our Hidden Markov Models.
 \end{itemize}
-\par Full-size figures of each phylo-acoustic tree are offered in appendix \ref{app_phylo}. Brown marks have been added to each figure whenever more than 40\% of a cluster consisted of species from the same genus (i.e. they share the first word in their scientific names). 
+\par Full-size figures of each phylo-acoustic tree are offered below. Brown marks have been added to each figure whenever more than 40\% of a cluster consisted of species from the same genus (i.e. they share the first word in their scientific names). 
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{kde_skld_2}}
+    \caption{Phylo-acoustic tree generated using the Symmetric KL Divergence between pairs of non-parametric distributions generated using KDE.}
+    \label{fig:kdeskld}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{kde_hellinger_2}}
+    \caption{Phylo-acoustic tree generated using the Hellinger distance between pairs of non-parametric distributions generated using KDE.}
+    \label{fig:kdehellinger}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{gmm_skld_2}}
+    %\includegraphics[width=\textwidth]{gmm_skld_2}
+    \caption{Phylo-acoustic tree generated using the Symmetric KL-Divergence between pairs of emission models (GMMs) from HMMs.}
+    \label{fig:gmmskld}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{gmm_hellinger_2}}
+    \caption{Phylo-acoustic tree generated using the Hellinger distance between pairs of emission models (GMMs) from HMMs.}
+    \label{fig:gmmhellinger}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{dirichlet_unweighted_2}}
+    \caption{Phylo-acoustic tree generated using the Symmetric KL-Divergence between pairs of transition models (Dirichlets) from HMMs.}
+    \label{fig:hmmunweighted}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{gmm_skld_2}}
+    \caption{Phylo-acoustic tree generated using the occupancy-weighted Symmetric KL-Divergence (see section \ref{subsection_hmmsim}) between pairs of transition models (Dirichlets) from HMMs.}
+    \label{fig:hmmweighted}
+\end{sidewaysfigure}
+\clearpage
 \par These trees can be assessed in several ways - choosing to mark clusters whose species share an ancestor is just one of them. The versatility of this approach suggests that, rather than proving that facts from Zoology extend to Acoustic Analysis, we can change the focus and contribute to these facts by showing empirical evidence about relationships that could be unexpected from their point of view.
 \par This key point was briefly discussed in chapter \ref{chapter_soa}, when we argued that birds sharing common ancestors need not necessarily share birdsong traits in the future. Birdsong is not uniquely determined by genes, instead it often suffers modifications that are due to mating advantage and adaptation to new environments. For this reason, relations unveiled in phylo-acoustic trees could also be linked to migration patterns and, more generally, geolocalisation.
 \par Nevertheless, one of the most important conclusions we aim to draw from these trees is that their structure is no coincidence. We address this in subsection \ref{subsection_null}.
@@ -150,15 +192,100 @@ In subsection \ref{subsection_phylo}, we presented 6 examples of phylo-acoustic 
 \begin{align*}
 H_0 = \text{there is no relationship between the species in a phylo-acoustic tree.}
 \end{align*}
-\par If this hypothesis is true, then randomly generated data has the same structure as any of these trees. To generate such data, we sample random formant trajectories from the uniform distribution $\mathcal{U}(f_{min}, f_{max})$, where the boundaries of the distribution correspond to the minimum and maximum formant seen in any species in the dataset. This key step guarantees that the structure present in the real phylo-acoustic trees is not only due to the range of frequencies in formant trajectories.
-\par After generating as many formant trajectories as bird species, we follow each of the pipelines described in subsection \ref{subsection_phylo} and generate new ``phylo-acoustic trees'' for each of them. The resulting trees are shown in appendix \ref{app_phylo}.
+\par If this hypothesis is true, then randomly generated data has the same structure as any of these trees. To generate such data, we sample random formant trajectories from the uniform distribution $\mathcal{U}(f_{min}, f_{max})$, where the boundaries of the distribution correspond to the minimum and maximum formant seen in any species in the dataset. 
+\par After generating as many formant trajectories as bird species, we follow each of the pipelines described in subsection \ref{subsection_phylo} and generate new ``phylo-acoustic trees'' for each of them. The resulting trees are shown below.
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_kde_skld}}
+    \caption{Random phylo-acoustic tree generated using the Symmetric KL Divergence between pairs of non-parametric distributions generated using KDE.}
+    \label{fig:rkdeskld}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_kde_hellinger}}
+    \caption{Random phylo-acoustic tree generated using the Hellinger distance between pairs of non-parametric distributions generated using KDE.}
+    \label{fig:rkdehellinger}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_gmm_skld}}
+    \caption{Random phylo-acoustic tree generated using the Symmetric KL-Divergence between pairs of emission models (GMMs) from HMMs.}
+    \label{fig:rgmmskld}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_gmm_hellinger}}
+    \caption{Random phylo-acoustic tree generated using the Hellinger distance between pairs of emission models (GMMs) from HMMs.}
+    \label{fig:rgmmhellinger}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_dirichlet_unweighted}}
+    \caption{Random phylo-acoustic tree generated using the Symmetric KL-Divergence between pairs of transition models (Dirichlets) from HMMs.}
+    \label{fig:rhmmunweighted}
+\end{sidewaysfigure}
+
+
+\begin{sidewaysfigure}[!ht]
+\noindent\makebox[\textwidth]{\includegraphics[width=\paperwidth]{random_gmm_skld}}
+    \caption{Random phylo-acoustic tree generated using the occupancy-weighted Symmetric KL-Divergence (see section \ref{subsection_hmmsim}) between pairs of transition models (Dirichlets) from HMMs.}
+    \label{fig:rhmmweighted}
+\end{sidewaysfigure}
+\clearpage
 \par We compare each pair of trees generated using the same technique by plotting how the number of clusters changes through time. When there is real structure in data, clusters are tight and well separated from each other. This implies the distance between clusters becomes larger as smaller clusters merge. This maps visually to long branches in a dendrogram. 
 \par On the other hand, when there is no real structure in data, objects tend to be similar distances apart from each other (they are uniformly scattered in space). When a new cluster is formed, linkage methods tend to change very little the distances between the original clusters, since they were very similar before merging. This translates into clusters that have a short life.
-\par The dendrogram is not a representation suitable to compare structured and non-structured data in parallel. Instead, we opt to generate a plot where we can compare the evolution of both, real and random trees, at the same time. In particular, we choose to plot the lifetime (from 0 up to the lifetime of the longest-living cluster) versus the number of clusters in each tree. The plots corresponding to each pipeline can also be found in appendix \ref{app_phylo}.
-\par In all six cases we obtain similar results. The red curves depicting the random statistical models go down very quickly due to clusters that live too little, as opposed to the blue lines (real data), which live many orders of magnitude longer.
+\par The dendrogram is not a representation suitable to compare structured and non-structured data in parallel. Instead, we opt to generate a plot where we can compare the evolution of both, real and random trees, at the same time. In particular, we choose to plot the lifetime (from 0 up to the lifetime of the longest-living cluster) versus the number of clusters in each tree. The plots corresponding to each pipeline can also be found below.
+\par In each plot, note the rate of change of the red curves (representing random structures) compared with the blue ones (real data). The red curves go down to zero very quickly, suggesting that clusters are merged at a fast rate; on the other hand, the blue lines do not only span a longer lifetime, but they also contain short horizontal segments that grow longer as time flows. This suggests that it takes longer for clusters to merge as the number of remaining clusters decreases. This is consistent with our hypothesis: at the beginning, many clusters belong to the same community, and thus they are clustered fairly quickly. However, as communities are formed, they lie further apart from each other, hence it takes longer for them to fuse.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetime_kde_skld}
+\caption{Lifetime vs. number of clusters using the Symmetric KL Divergence between non-parametric distributions obtained via KDE.}
+\label{fig_lt_kde_skld}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetime_kde_hellinger}
+\caption{Lifetime vs. number of clusters using the Hellinger distance between non-parametric distributions obtained via KDE.}
+\label{fig_lt_kde_hellinger}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetime_gmm_skld}
+\caption{Lifetime vs. number of clusters using the Symmetric KL Divergence between HMM emission models (GMMs).}
+\label{fig_lt_gmm_skld}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetime_gmm_hellinger}
+\caption{Lifetime vs. number of clusters using the Hellinger distance between HMM emission models (GMMs).}
+\label{fig_lt_gmm_hellinger}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetime_dirichlet_unweighted}
+\caption{Lifetime vs. number of clusters using the Dirichlet distance between HMMs.}
+\label{fig_lt_du}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lifetimedirichlet_occupancy}
+\caption{Lifetime vs. number of clusters using the Occupancy-weighted Dirichlet distance between HMMs.}
+\label{fig_lt_occ}
+\end{figure}   
+
+
+\par We obtain similar results in all six cases. The red curves depicting the random statistical models go down very quickly due to clusters that live too little, as opposed to the blue lines (real data), which live many orders of magnitude longer.
 \par These findings are strong arguments to reject the null hypothesis and hence conclude that real data does exhibit real structure.
 \section{Conclusion}
 In this chapter, we discussed the implementation details for specific pipelines that output phylo-acoustic trees. In particular, we presented guidelines to make a full implementation of these pipelines using the algorithms and techniques described in chapter \ref{chapter_formants} and \ref{chapter_hmms}.
-\par The final chapter provides further discussion on the results obtained, and highlights areas that could lead to future work.
+\par Additionally, we introduced a null hypothesis model to disprove the lack of structure in our data, which we did by analysing the lifetime of clusters created during hierarchical clustering. The final chapter provides further discussion on the results obtained, and highlights areas that could lead to future work.
 
 \end{document}
